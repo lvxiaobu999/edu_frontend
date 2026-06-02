@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Form, Input, Button, Card, App } from 'antd'
+import { Form, Input, Button, Card, message } from 'antd'
 import { UserOutlined, LockOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
@@ -11,7 +11,6 @@ export const Component: React.FC = () => {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const { setAuth } = useAuthStore()
-  const { message } = App.useApp()
 
   const loginMutation = useMutation({
     mutationFn: async (values: { username: string; password: string }) => {
