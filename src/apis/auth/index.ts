@@ -5,6 +5,6 @@ export function loginApi(data: { username: string; password: string }) {
   return request.post<ApiResponse<LoginResponse>>('/api/login', data)
 }
 
-export function logoutApi() {
-  return request.post<ApiResponse<null>>('/api/auth/logout')
+export function logoutApi(data: { refreshToken: string }) {
+  return request.post<ApiResponse<null>>('/api/logout', data)
 }

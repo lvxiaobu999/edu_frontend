@@ -6,10 +6,8 @@ interface AuthState {
   user: UserDto | null
   accessToken: string | null
   refreshToken: string | null
-  isInitialized: boolean
   getToken: () => string | null
   getRefreshToken: () => string | null
-  setInitialized: (initialized: boolean) => void
   clearAuth: () => void
   setAuth: (loginResponse: LoginResponse) => void
   updateAccessToken: (token: string) => void
@@ -21,20 +19,17 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       accessToken: null,
       refreshToken: null,
-      isInitialized: false,
       getToken: () => get().accessToken,
       getRefreshToken: () => get().refreshToken,
-      setInitialized: initialized => set({ isInitialized: initialized }),
       clearAuth: () => {
         localStorage.removeItem('auth-store')
-        set({ user: null, accessToken: null, refreshToken: null, isInitialized: true })
+        set({ user: null, accessToken: null, refreshToken: null })
       },
       setAuth: loginResponse =>
         set({
           user: loginResponse.user,
           accessToken: loginResponse.access,
           refreshToken: loginResponse.refresh,
-          isInitialized: true,
         }),
       updateAccessToken: token => set({ accessToken: token }),
     }),
@@ -46,9 +41,6 @@ export const useAuthStore = create<AuthState>()(
         accessToken: state.accessToken,
         refreshToken: state.refreshToken,
       }),
-      onRehydrateStorage: () => () => {
-        useAuthStore.setState({ isInitialized: true })
-      },
     },
   ),
 )

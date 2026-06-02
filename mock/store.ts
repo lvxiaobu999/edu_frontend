@@ -137,9 +137,8 @@ export const createLoginResponse = (username: string): LoginResponse | null => {
   if (!u || !u.is_active) return null
   return {
     user: toUserDto(u),
-    accessToken: `${u.username}-mock-token`,
-    tokenType: 'Bearer',
-    expiresIn: 7200,
+    access: `${u.username}-mock-access-token`,
+    refresh: `${u.username}-mock-refresh-token`,
   }
 }
 

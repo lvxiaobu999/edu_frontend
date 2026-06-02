@@ -19,22 +19,23 @@ export const Component: React.FC = () => {
       // interceptor unwraps AxiosResponse at runtime, but TS sees it as AxiosResponse<ApiResponse<LoginResponse>>
       return (res as unknown as ApiResponse<LoginResponse>).data
     },
-    onSuccess: loginRes => {
-      setAuth(loginRes)
-      message.success('登录成功')
-      navigate('/dashboard', { replace: true })
-    },
-    onError: () => {
-      message.error('登录失败，请检查账号和密码')
-    },
-    onSettled: () => {
-      setLoading(false)
-    },
   })
 
   const onFinish = (values: { username: string; password: string }) => {
     setLoading(true)
-    loginMutation.mutate(values)
+    loginMutation.mutate(values, {
+      onSuccess: loginRes => {
+        setAuth(loginRes)
+        message.success('登录成功')
+        navigate('/dashboard', { replace: true })
+      },
+      onError: () => {
+        message.error('登录失败，请检查账号和密码')
+      },
+      onSettled: () => {
+        setLoading(false)
+      },
+    })
   }
 
   const initialValues = {

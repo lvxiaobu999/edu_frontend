@@ -8,12 +8,14 @@ import { logoutApi } from '@/apis/auth'
 import { RoleLabel, type Role } from '@/apis/types'
 
 const UserInfo: React.FC = () => {
-  const { user, accessToken, clearAuth } = useAuthStore()
+  const { user, accessToken, refreshToken, clearAuth } = useAuthStore()
   const { locale, setLocale, t } = useI18n()
   const navigate = useNavigate()
 
   const logout = async () => {
-    await logoutApi()
+    await logoutApi({
+      refresh: refreshToken, // 传 refresh token 以便后端撤销
+    })
     clearAuth()
   }
 
@@ -61,11 +63,7 @@ const UserInfo: React.FC = () => {
   )
 
   return (
-    <Popover
-      styles={styles}
-      content={accessToken ? userInfoContent : loginBtn}
-      trigger="click"
-    >
+    <Popover styles={styles} content={accessToken ? userInfoContent : loginBtn} trigger="click">
       <Button type="primary" shape="circle" aria-label={t('user.profileAria')}>
         <Avatar icon={<UserOutlined />} />
       </Button>
