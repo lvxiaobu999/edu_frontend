@@ -1,0 +1,39 @@
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+  <!-- left block -->
+  <path d="
+    M8 6
+    h14
+    c2 0 4 2 4 4
+    v40
+    c0 2-2 4-4 4
+    H8
+    c-2 0-4-2-4-4
+    V10
+    c0-2 2-4 4-4
+    Z
+  "></path>
+
+  <!-- right block -->
+  <path d="
+    M42 6
+    h14
+    c2 0 4 2 4 4
+    v40
+    c0 2-2 4-4 4
+    H42
+    c-2 0-4-2-4-4
+    V10
+    c0-2 2-4 4-4
+    Z
+  "></path>
+
+  <!-- middle connector (angled) -->
+  <path d="
+    M22 26
+    h20
+    l-4 12
+    H26
+    l-4-12
+    Z
+  "></path>
+</svg>

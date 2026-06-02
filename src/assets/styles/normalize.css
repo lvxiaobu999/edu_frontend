@@ -1,0 +1,185 @@
+/**
+ * 通用样式重置 + Normalize 增强版
+ * 解决浏览器默认样式差异、统一盒模型、清除默认边距等
+ */
+*,
+*::before,
+*::after {
+  padding: 0;
+
+  /* 清除默认内外边距（部分元素默认有 margin/padding） */
+  margin: 0;
+
+  /* 统一盒模型：宽高包含内边距和边框 */
+  box-sizing: border-box;
+
+  /* 防止移动端点击高亮 */
+  -webkit-tap-highlight-color: transparent;
+
+  /* 字体抗锯齿（提升渲染清晰度） */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*:focus {
+  outline: none;
+}
+
+/* 重置根元素字体大小（适配 rem 布局） */
+html {
+  /* 平滑滚动 */
+  scroll-behavior: smooth;
+}
+
+/* 重置 body 基础样式 */
+body {
+  /* 基础字体大小：16px（适配大部分场景） */
+
+  /* 通用字体栈（兼顾各系统） */
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans',
+    sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+  /* 行高（提升可读性） */
+  line-height: 1.5;
+
+  /* 禁止选中（非必要，可注释） */
+  user-select: none;
+}
+
+/* 重置列表样式（ul/ol） */
+ul,
+ol {
+  /* 清除默认列表标记 */
+  list-style: none;
+}
+
+/* 重置链接样式 */
+a {
+  /* 清除默认下划线 */
+  text-decoration: none;
+
+  /* 继承文本颜色 */
+  color: inherit;
+
+  /* 点击可点性（解决移动端兼容） */
+  touch-action: manipulation;
+}
+
+/* 重置按钮/输入框/选择框/文本域 */
+button,
+input,
+select,
+textarea {
+  /* 继承字体样式 */
+  font-family: inherit;
+  font-size: inherit;
+
+  /* 清除默认背景 */
+  background-color: transparent;
+
+  /* 清除默认样式 */
+  border: none;
+
+  /* 清除按钮默认边框 */
+  border-radius: 0;
+  outline: none;
+
+  /* 解决 iOS 按钮样式 */
+  appearance: none;
+
+  /* 鼠标样式 */
+  cursor: pointer;
+}
+
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none !important;
+}
+
+/* 重置文本域（禁止拉伸） */
+textarea {
+  resize: none;
+}
+
+/* 重置图片/视频/iframe 等替换元素 */
+img,
+video,
+iframe,
+svg {
+  /* 清除底部空白 */
+  display: block;
+
+  /* 响应式 */
+  max-width: 100%;
+
+  /* 垂直对齐 */
+  vertical-align: middle;
+}
+
+/* 重置表格样式 */
+table {
+  /* 合并边框 */
+  border-collapse: collapse;
+
+  /* 边框间距 */
+  border-spacing: 0;
+}
+
+/* 重置标题标签（h1-h6） */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  /* 继承字体大小（可自定义） */
+  font-size: inherit;
+
+  /* 清除默认加粗 */
+  font-weight: normal;
+}
+
+/* 重置表单元素禁用状态 */
+button:disabled,
+input:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* 清除浮动（兼容旧方案） */
+.clearfix::after {
+  display: block;
+  clear: both;
+  height: 0;
+  visibility: hidden;
+  content: '';
+}
+
+/* 隐藏元素（视觉+可访问性） */
+.hidden {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* 清除 input 类型为 number 的上下箭头 */
+input[type='number'] {
+  appearance: textfield;
+}
+
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+/* 重置 placeholder 样式（可自定义） */
+::input-placeholder {
+  color: #999;
+}
+
+::placeholder {
+  color: #999;
+}

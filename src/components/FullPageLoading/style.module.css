@@ -1,0 +1,49 @@
+/* 全屏容器，使用 fixed 保证脱离文档流，覆盖整个可视区域 */
+.full-page-loading-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f0f2f5; /* 柔和的浅灰色背景，不刺眼 */
+  z-index: 9999; /* 保证在最上层 */
+}
+
+/* 内容垂直居中对齐 */
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 圆环旋转动画器 */
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #e5e7eb; /* 底色圆环 */
+  border-top-color: #1677ff; /* 旋转的主题色 (这里使用了类似 Antd 的蓝色) */
+  border-radius: 50%;
+  animation: loading-spin 1s linear infinite; /* 无限线性旋转 */
+  margin-bottom: 16px;
+}
+
+/* 提示文字样式 */
+.loading-text {
+  color: #6b7280;
+  font-size: 15px;
+  margin: 0;
+  letter-spacing: 1px;
+}
+
+/* 旋转动画关键帧 */
+@keyframes loading-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

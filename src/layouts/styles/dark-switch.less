@@ -1,0 +1,34 @@
+.dark-toggle {
+  background-color: rgb(244, 244, 245);
+  border: 1px solid #dcdfe6;
+
+  &.is-dark {
+    background-color: rgb(57, 58, 60);
+    border: 1px solid #4c4d4f;
+  }
+
+  .toggle-thumb {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    display: block;
+    display: flex;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    transform: translateY(-50%);
+    transition: transform 0.3s ease-in-out !important;
+    justify-content: center;
+    align-items: center;
+
+    .el-icon {
+      display: block;
+      font-size: 14px;
+    }
+  }
+
+  &.is-dark .toggle-thumb {
+    background: #000;
+    transform: translateY(-50%) translateX(18px);
+  }
+}
