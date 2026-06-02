@@ -162,10 +162,15 @@ export interface ResearchGroupDto {
 // ============ 仪表盘统计 ============
 
 export interface DashboardStats {
-  totalStudents: number
-  totalTeachers: number
-  totalResearchGroups: number
-  totalUsers: number
-  totalClasses: number
-  pendingUsers: number
+  totals: {
+    teachers: number
+    students: number
+    classes: number
+    research_groups: number
+  }
+  distribution: {
+    label: string
+    count: number
+  }[]
+  description: string
 }

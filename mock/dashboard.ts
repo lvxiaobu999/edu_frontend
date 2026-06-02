@@ -7,6 +7,9 @@ export default [
     url: '/api/dashboard/stats',
     method: 'get',
     timeout: 300,
-    response: (request: any) => createResponse(getDashboardStats(), request),
+    response: (request: any) => {
+      const grade = request.query?.grade as string | undefined
+      return createResponse(getDashboardStats(grade), request)
+    },
   },
 ] as MockMethod[]

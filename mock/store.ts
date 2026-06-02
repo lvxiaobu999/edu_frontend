@@ -383,11 +383,49 @@ export const deleteResearchGroup = (id: string) => {
 
 // ============ 仪表盘统计 ============
 
-export const getDashboardStats = () => ({
-  totalStudents: studentStore.length,
-  totalTeachers: teacherStore.length,
-  totalResearchGroups: researchGroupStore.length,
-  totalUsers: userStore.length,
-  totalClasses: classesStore.length,
-  pendingUsers: userStore.filter(u => !u.is_approved).length,
-})
+const gradeOrder = [
+  'GRADE_1', 'GRADE_2', 'GRADE_3', 'GRADE_4', 'GRADE_5', 'GRADE_6',
+  'GRADE_7', 'GRADE_8', 'GRADE_9', 'SENIOR_1', 'SENIOR_2', 'SENIOR_3',
+] as const
+
+const gradeDisplayMap: Record<string, string> = {
+  GRADE_1: '一年级', GRADE_2: '二年级', GRADE_3: '三年级',
+  GRADE_4: '四年级', GRADE_5: '五年级', GRADE_6: '六年级',
+  GRADE_7: '七年级', GRADE_8: '八年级', GRADE_9: '九年级',
+  SENIOR_1: '高一', SENIOR_2: '高二', SENIOR_3: '高三',
+}
+
+export const getDashboardStats = (grade?: string) => {
+  const totals = {
+    teachers: teacherStore.length,
+    students: studentStore.length,
+    classes: classesStore.length,
+    research_groups: researchGroupStore.length,
+  }
+
+  let distribution: { label: string; count: number }[]
+
+  if (grade) {
+    // 选中具体年级 → 返回该年级下各班人数
+    const classesInGrade = classesStore.filter(c => c.grade === grade)
+    distribution = classesInGrade.map(c => ({
+      label: c.name,
+      count: studentStore.filter(s => s.class_id === c.id).length,
+    }))
+  } else {
+    // 全校 → 返回各年级人数
+    distribution = gradeOrder.map(g => ({
+      label: gradeDisplayMap[g] || g,
+      count: studentStore.filter(s => {
+        const cls = classesStore.find(c => c.id === s.class_id)
+        return cls?.grade === g
+      }).length,
+    }))
+  }
+
+  const description = grade
+    ? `${gradeDisplayMap[grade] || grade}各班人数`
+    : '各年级人数'
+
+  return { totals, distribution, description }
+}
