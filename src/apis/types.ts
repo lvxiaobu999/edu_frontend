@@ -68,23 +68,6 @@ export const GradeLabel: Record<Grade, string> = {
 
 export const GradeOptions = Object.entries(GradeLabel).map(([value, label]) => ({ value, label }))
 
-// ============ 通用响应类型 ============
-
-export interface PaginatedData<T> {
-  list: T[]
-  total: number
-  page: number
-  pageSize: number
-  totalPages: number
-}
-
-export interface ApiResponse<T> {
-  code: number
-  success: boolean
-  message: string
-  data: T
-}
-
 // ============ 用户（匹配后端 User model） ============
 
 export interface UserDto {

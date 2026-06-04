@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react'
 import { Divider, Layout } from 'antd'
-import { Outlet, useLocation, useNavigation } from 'react-router-dom'
+import { Navigate, Outlet, useLocation, useNavigation } from 'react-router-dom'
 import nProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 import { motion, AnimatePresence } from 'framer-motion'
 import { PrimaryColor, DarkSwitch, Logo } from './components'
-import { useThemeStore } from '@/store'
+import { useAuthStore, useThemeStore } from '@/store'
 import style from './styles/auth-layout.module.less'
 
 const { Header, Content } = Layout
@@ -13,6 +13,7 @@ const { Header, Content } = Layout
 const AppLayout: React.FC = () => {
   const { pathname } = useLocation()
   const { isDark } = useThemeStore()
+  const { getToken } = useAuthStore()
 
   // 优化点：获取全局路由状态，处理加载中的 Loading
   const navigation = useNavigation()
@@ -26,6 +27,11 @@ const AppLayout: React.FC = () => {
       nProgress.done()
     }
   }, [isLoading])
+  console.log('AuthGuard 渲染，当前路径:', pathname, '加载状态:', navigation.state, getToken())
+  // 已登录用户访问登录页等公开页面，重定向到首页
+  if (getToken()) {
+    return <Navigate to="/dashboard" replace />
+  }
 
   return (
     <Layout className={[style['auth-layout'], isDark ? style['auth-layout-dark'] : ''].join(' ')}>

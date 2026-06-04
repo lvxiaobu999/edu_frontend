@@ -1,8 +1,6 @@
-import { request } from '@/utils/request'
-import type { ApiResponse, DashboardStats } from '../types'
+import { httpClient } from '@/utils'
+import type { DashboardStats } from '../types'
 
 export function getDashboardStatsApi(grade?: string) {
-  return request.get<ApiResponse<DashboardStats>>('/api/dashboard/stats/', {
-    params: grade ? { grade } : undefined,
-  })
+  return httpClient.get<DashboardStats>('/api/dashboard/stats', grade ? { grade } : undefined)
 }

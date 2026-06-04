@@ -1,14 +1,28 @@
 import React, { useState } from 'react'
 import {
-  Button, Form, Input, Modal, Select, Space, Switch, Table, Tag,
-  Typography, App, Tabs,
+  Button,
+  Form,
+  Input,
+  Modal,
+  Select,
+  Space,
+  Switch,
+  Table,
+  Tag,
+  Typography,
+  App,
+  Tabs,
 } from 'antd'
 import { PlusOutlined, CheckOutlined, ReloadOutlined } from '@ant-design/icons'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { ColumnsType } from 'antd/es/table'
 import {
-  getUsersApi, createUserApi, updateUserApi, deleteUserApi,
-  approveUserApi, getPendingUsersApi,
+  getUsersApi,
+  createUserApi,
+  updateUserApi,
+  deleteUserApi,
+  approveUserApi,
+  getPendingUsersApi,
 } from '@/apis/user'
 import type { UserDto } from '@/apis/types'
 import { RoleLabel, RoleOptions } from '@/apis/types'
@@ -29,9 +43,9 @@ const UserManagement: React.FC = () => {
     queryKey: ['users', pagination, activeTab],
     queryFn: () => {
       if (activeTab === 'pending') {
-        return getPendingUsersApi({ page: pagination.current, pageSize: pagination.pageSize }).then(res => res.data)
+        return getPendingUsersApi({ page: pagination.current, pageSize: pagination.pageSize })
       }
-      return getUsersApi({ page: pagination.current, pageSize: pagination.pageSize }).then(res => res.data)
+      return getUsersApi({ page: pagination.current, pageSize: pagination.pageSize })
     },
   })
 
@@ -84,7 +98,11 @@ const UserManagement: React.FC = () => {
       key: 'role',
       render: (role: string) => {
         const colors: Record<string, string> = { ADMIN: 'red', TEACHER: 'blue', STUDENT: 'green' }
-        return <Tag color={colors[role] || 'default'}>{RoleLabel[role as keyof typeof RoleLabel] || role}</Tag>
+        return (
+          <Tag color={colors[role] || 'default'}>
+            {RoleLabel[role as keyof typeof RoleLabel] || role}
+          </Tag>
+        )
       },
     },
     { title: '邮箱', dataIndex: 'email', key: 'email' },
@@ -170,7 +188,10 @@ const UserManagement: React.FC = () => {
       <div className="flex justify-between items-center mb-4">
         <Title level={3}>用户管理</Title>
         <Space>
-          <Button icon={<ReloadOutlined />} onClick={() => queryClient.invalidateQueries({ queryKey: ['users'] })}>
+          <Button
+            icon={<ReloadOutlined />}
+            onClick={() => queryClient.invalidateQueries({ queryKey: ['users'] })}
+          >
             刷新
           </Button>
           <Button
@@ -191,7 +212,7 @@ const UserManagement: React.FC = () => {
 
       <Table
         columns={columns}
-        dataSource={data?.list || []}
+        dataSource={data?.results || []}
         rowKey="id"
         loading={isLoading}
         pagination={{
@@ -206,7 +227,11 @@ const UserManagement: React.FC = () => {
         title={editingUser ? '编辑用户' : '新增用户'}
         open={open}
         onOk={handleSubmit}
-        onCancel={() => { setOpen(false); setEditingUser(null); form.resetFields() }}
+        onCancel={() => {
+          setOpen(false)
+          setEditingUser(null)
+          form.resetFields()
+        }}
         confirmLoading={createMutation.isPending || updateMutation.isPending}
         width={600}
       >

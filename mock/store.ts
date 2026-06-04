@@ -103,7 +103,7 @@ const toUserDto = (u: UserRecord): UserDto => ({
   email: u.email,
   phone: u.phone,
   role: u.role as UserDto['role'],
-  role_display: ({ ADMIN: '管理员', TEACHER: '老师', STUDENT: '学生' })[u.role] || u.role,
+  role_display: { ADMIN: '管理员', TEACHER: '老师', STUDENT: '学生' }[u.role] || u.role,
   real_name: u.real_name,
   is_approved: u.is_approved,
   is_active: u.is_active,
@@ -121,16 +121,14 @@ export const getUsers = (query?: { username?: string; role?: string; is_approved
     })
     .map(toUserDto)
 
-export const getUserByUsername = (username: string) =>
-  userStore.find(u => u.username === username)
+export const getUserByUsername = (username: string) => userStore.find(u => u.username === username)
 
 export const getUserById = (id: string) => {
   const u = userStore.find(item => item.id === id)
   return u ? toUserDto(u) : null
 }
 
-export const getPendingUsers = () =>
-  userStore.filter(u => !u.is_approved).map(toUserDto)
+export const getPendingUsers = () => userStore.filter(u => !u.is_approved).map(toUserDto)
 
 export const createLoginResponse = (username: string): LoginResponse | null => {
   const u = getUserByUsername(username)
@@ -184,10 +182,38 @@ export const approveUser = (id: string) => {
 type ClassesRecord = ClassesDto
 
 let classesStore: ClassesRecord[] = [
-  { id: 'c1', grade: 'SENIOR_1', grade_display: '高一', name: '1班', headmaster: 'tp1', headmaster_name: '张老师' },
-  { id: 'c2', grade: 'SENIOR_1', grade_display: '高一', name: '2班', headmaster: 'tp2', headmaster_name: '李老师' },
-  { id: 'c3', grade: 'SENIOR_2', grade_display: '高二', name: '1班', headmaster: null, headmaster_name: '' },
-  { id: 'c4', grade: 'GRADE_9', grade_display: '九年级', name: '1班', headmaster: null, headmaster_name: '' },
+  {
+    id: 'c1',
+    grade: 'SENIOR_1',
+    grade_display: '高一',
+    name: '1班',
+    headmaster: 'tp1',
+    headmaster_name: '张老师',
+  },
+  {
+    id: 'c2',
+    grade: 'SENIOR_1',
+    grade_display: '高一',
+    name: '2班',
+    headmaster: 'tp2',
+    headmaster_name: '李老师',
+  },
+  {
+    id: 'c3',
+    grade: 'SENIOR_2',
+    grade_display: '高二',
+    name: '1班',
+    headmaster: null,
+    headmaster_name: '',
+  },
+  {
+    id: 'c4',
+    grade: 'GRADE_9',
+    grade_display: '九年级',
+    name: '1班',
+    headmaster: null,
+    headmaster_name: '',
+  },
 ]
 
 export const getClasses = (query?: { grade?: string; name?: string }) =>
@@ -260,7 +286,8 @@ let teacherStore: TeacherRecord[] = [
   },
 ]
 
-export const getTeacherByUser = (userId: string) => teacherStore.find(t => t.user === userId) ?? null
+export const getTeacherByUser = (userId: string) =>
+  teacherStore.find(t => t.user === userId) ?? null
 export const getAllTeachers = () => teacherStore
 
 export const createOrUpdateTeacher = (payload: Partial<TeacherRecord>, userId: string) => {
@@ -323,7 +350,8 @@ let studentStore: StudentRecord[] = [
   },
 ]
 
-export const getStudentByUser = (userId: string) => studentStore.find(s => s.user === userId) ?? null
+export const getStudentByUser = (userId: string) =>
+  studentStore.find(s => s.user === userId) ?? null
 export const getAllStudents = () => studentStore
 
 export const createOrUpdateStudent = (payload: Partial<StudentRecord>, userId: string) => {
@@ -362,7 +390,8 @@ let researchGroupStore: ResearchGroupRecord[] = [
 ]
 
 export const getResearchGroups = () => researchGroupStore
-export const getResearchGroupById = (id: string) => researchGroupStore.find(g => g.id === id) ?? null
+export const getResearchGroupById = (id: string) =>
+  researchGroupStore.find(g => g.id === id) ?? null
 
 export const createResearchGroup = (payload: { name: string }) => {
   const g: ResearchGroupRecord = { id: createId('rg'), name: payload.name }
@@ -384,15 +413,33 @@ export const deleteResearchGroup = (id: string) => {
 // ============ 仪表盘统计 ============
 
 const gradeOrder = [
-  'GRADE_1', 'GRADE_2', 'GRADE_3', 'GRADE_4', 'GRADE_5', 'GRADE_6',
-  'GRADE_7', 'GRADE_8', 'GRADE_9', 'SENIOR_1', 'SENIOR_2', 'SENIOR_3',
+  'GRADE_1',
+  'GRADE_2',
+  'GRADE_3',
+  'GRADE_4',
+  'GRADE_5',
+  'GRADE_6',
+  'GRADE_7',
+  'GRADE_8',
+  'GRADE_9',
+  'SENIOR_1',
+  'SENIOR_2',
+  'SENIOR_3',
 ] as const
 
 const gradeDisplayMap: Record<string, string> = {
-  GRADE_1: '一年级', GRADE_2: '二年级', GRADE_3: '三年级',
-  GRADE_4: '四年级', GRADE_5: '五年级', GRADE_6: '六年级',
-  GRADE_7: '七年级', GRADE_8: '八年级', GRADE_9: '九年级',
-  SENIOR_1: '高一', SENIOR_2: '高二', SENIOR_3: '高三',
+  GRADE_1: '一年级',
+  GRADE_2: '二年级',
+  GRADE_3: '三年级',
+  GRADE_4: '四年级',
+  GRADE_5: '五年级',
+  GRADE_6: '六年级',
+  GRADE_7: '七年级',
+  GRADE_8: '八年级',
+  GRADE_9: '九年级',
+  SENIOR_1: '高一',
+  SENIOR_2: '高二',
+  SENIOR_3: '高三',
 }
 
 export const getDashboardStats = (grade?: string) => {
@@ -423,9 +470,7 @@ export const getDashboardStats = (grade?: string) => {
     }))
   }
 
-  const description = grade
-    ? `${gradeDisplayMap[grade] || grade}各班人数`
-    : '各年级人数'
+  const description = grade ? `${gradeDisplayMap[grade] || grade}各班人数` : '各年级人数'
 
   return { totals, distribution, description }
 }

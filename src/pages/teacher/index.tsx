@@ -1,5 +1,17 @@
 import React, { useState } from 'react'
-import { Button, Form, Input, InputNumber, Modal, Select, Space, Table, Tag, Typography, App } from 'antd'
+import {
+  Button,
+  Form,
+  Input,
+  InputNumber,
+  Modal,
+  Select,
+  Space,
+  Table,
+  Tag,
+  Typography,
+  App,
+} from 'antd'
 import { PlusOutlined, ReloadOutlined } from '@ant-design/icons'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { ColumnsType } from 'antd/es/table'
@@ -18,12 +30,12 @@ const TeacherProfilePage: React.FC = () => {
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['teacher-profile'],
-    queryFn: () => getTeacherProfileApi().then(res => (res as any).data as TeacherProfileDto),
+    queryFn: getTeacherProfileApi,
   })
 
   const { data: groupsData } = useQuery({
     queryKey: ['research-groups'],
-    queryFn: () => getResearchGroupsApi().then(res => (res as any).data),
+    queryFn: () => getResearchGroupsApi(),
   })
 
   const saveMutation = useMutation({
@@ -52,8 +64,7 @@ const TeacherProfilePage: React.FC = () => {
       title: '所属教研组',
       dataIndex: 'research_group_names',
       key: 'research_group_names',
-      render: (names: string[]) =>
-        names?.length ? names.map(n => <Tag key={n}>{n}</Tag>) : '-',
+      render: (names: string[]) => (names?.length ? names.map(n => <Tag key={n}>{n}</Tag>) : '-'),
     },
   ]
 
@@ -70,7 +81,9 @@ const TeacherProfilePage: React.FC = () => {
       <div className="flex justify-between items-center mb-4">
         <Title level={3}>教师简介</Title>
         <Space>
-          <Button icon={<ReloadOutlined />} onClick={() => refetch()}>刷新</Button>
+          <Button icon={<ReloadOutlined />} onClick={() => refetch()}>
+            刷新
+          </Button>
           <Button
             type="primary"
             icon={<PlusOutlined />}

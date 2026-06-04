@@ -3,12 +3,7 @@ import { Button, Form, Input, Modal, Select, Space, Table, Typography, App } fro
 import { PlusOutlined, ReloadOutlined } from '@ant-design/icons'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { ColumnsType } from 'antd/es/table'
-import {
-  getClassesApi,
-  createClassApi,
-  updateClassApi,
-  deleteClassApi,
-} from '@/apis/classes'
+import { getClassesApi, createClassApi, updateClassApi, deleteClassApi } from '@/apis/classes'
 import type { ClassesDto } from '@/apis/types'
 import { GradeLabel, GradeOptions } from '@/apis/types'
 
@@ -29,7 +24,7 @@ const ClassesManagement: React.FC = () => {
       getClassesApi({
         page: pagination.current,
         pageSize: pagination.pageSize,
-      }).then(res => (res as any).data),
+      }),
   })
 
   const createMutation = useMutation({
@@ -123,7 +118,10 @@ const ClassesManagement: React.FC = () => {
       <div className="flex justify-between items-center mb-4">
         <Title level={3}>班级管理</Title>
         <Space>
-          <Button icon={<ReloadOutlined />} onClick={() => queryClient.invalidateQueries({ queryKey: ['classes'] })}>
+          <Button
+            icon={<ReloadOutlined />}
+            onClick={() => queryClient.invalidateQueries({ queryKey: ['classes'] })}
+          >
             刷新
           </Button>
           <Button
@@ -157,14 +155,22 @@ const ClassesManagement: React.FC = () => {
         title={editingRecord ? '编辑班级' : '新增班级'}
         open={open}
         onOk={handleSubmit}
-        onCancel={() => { setOpen(false); setEditingRecord(null); form.resetFields() }}
+        onCancel={() => {
+          setOpen(false)
+          setEditingRecord(null)
+          form.resetFields()
+        }}
         confirmLoading={createMutation.isPending || updateMutation.isPending}
       >
         <Form form={form} layout="vertical">
           <Form.Item name="grade" label="年级" rules={[{ required: true, message: '请选择年级' }]}>
             <Select options={GradeOptions} placeholder="请选择年级" />
           </Form.Item>
-          <Form.Item name="name" label="班级名称" rules={[{ required: true, message: '请输入班级名称' }]}>
+          <Form.Item
+            name="name"
+            label="班级名称"
+            rules={[{ required: true, message: '请输入班级名称' }]}
+          >
             <Input placeholder="如：1班" />
           </Form.Item>
         </Form>

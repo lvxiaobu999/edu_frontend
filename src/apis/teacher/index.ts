@@ -1,14 +1,14 @@
-import { request } from '@/utils/request'
-import type { ApiResponse, TeacherProfileDto } from '../types'
+import { httpClient } from '@/utils'
+import type { TeacherProfileDto } from '../types'
 
 export function getTeacherProfileApi() {
-  return request.get<ApiResponse<TeacherProfileDto>>('/api/profile/teacher/')
+  return httpClient.get<TeacherProfileDto>('/api/profile/teacher')
 }
 
 export function saveTeacherProfileApi(data: Partial<TeacherProfileDto>) {
-  return request.post<ApiResponse<TeacherProfileDto>>('/api/profile/teacher/', data)
+  return httpClient.post<TeacherProfileDto>('/api/profile/teacher', data)
 }
 
 export function updateTeacherProfileApi(data: Partial<TeacherProfileDto>) {
-  return request.put<ApiResponse<TeacherProfileDto>>('/api/profile/teacher/', data)
+  return httpClient.put<TeacherProfileDto>('/api/profile/teacher', data)
 }

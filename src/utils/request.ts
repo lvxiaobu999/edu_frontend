@@ -55,10 +55,10 @@ const createAxiosInstance = (baseURL?: string): AxiosInstance => {
       const startTime = response.config.metadata?.startTime
       const duration = startTime ? endTime - startTime : 0
 
-      // 业务逻辑成功
+      // 业务逻辑成功：直接解包 ApiResponse，返回内层 data
       if (response.data?.code === 0) {
         return {
-          ...response.data,
+          ...response.data.data,
           duration: `API ${response.config.url} 耗时: ${duration}ms`,
         }
       }
@@ -173,11 +173,21 @@ const handleUnauthorized = async (instance: AxiosInstance, config: InternalAxios
 const forceLogout = (authStore: any) => {
   authStore.clearAuth()
   message.error('登录状态已失效，请重新登录')
-  window.location.href = '/auth/login'
+  window.location.href = '/login'
 }
 
 // const baseURL = import.meta.env.VITE_BASE_API
 const baseURL = import.meta.env.VITE_API_BASE_URL
 
-export const request = createAxiosInstance(baseURL)
+// 拦截器已在运行时解包 AxiosResponse → ApiResponse → 内层 data，
+// 此处覆盖类型声明，让调用方无需再手动处理 ApiResponse 包装
+interface UnwrappedRequest {
+  get<T = unknown>(url: string, config?: any): Promise<T>
+  post<T = unknown>(url: string, data?: unknown, config?: any): Promise<T>
+  put<T = unknown>(url: string, data?: unknown, config?: any): Promise<T>
+  delete<T = unknown>(url: string, config?: any): Promise<T>
+  patch<T = unknown>(url: string, data?: unknown, config?: any): Promise<T>
+}
+
+export const request = createAxiosInstance(baseURL) as unknown as UnwrappedRequest
 export default request

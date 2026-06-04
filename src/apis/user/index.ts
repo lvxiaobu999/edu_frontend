@@ -1,5 +1,5 @@
-import { request } from '@/utils/request'
-import type { ApiResponse, PaginatedData, UserDto } from '../types'
+import { httpClient } from '@/utils'
+import type { UserDto } from '../types'
 
 export function getUsersApi(params: {
   page?: number
@@ -7,33 +7,38 @@ export function getUsersApi(params: {
   username?: string
   role?: string
 }) {
-  return request.get<ApiResponse<PaginatedData<UserDto>>>('/api/', { params })
+  return httpClient.getPaginated<UserDto>('/api/users', params)
 }
 
 export function getUserByIdApi(id: string) {
-  return request.get<ApiResponse<UserDto>>(`/api/${id}/`)
+  return httpClient.get<UserDto>(`/api/users/${id}`)
 }
 
 export function createUserApi(data: Record<string, unknown>) {
-  return request.post<ApiResponse<UserDto>>('/api/', data)
+  return httpClient.post<UserDto>('/api/users', data)
 }
 
 export function updateUserApi(id: string, data: Record<string, unknown>) {
-  return request.put<ApiResponse<UserDto>>(`/api/${id}/`, data)
+  return httpClient.put<UserDto>(`/api/users/${id}`, data)
 }
 
 export function deleteUserApi(id: string) {
-  return request.delete<ApiResponse<null>>(`/api/${id}/`)
+  return httpClient.delete<null>(`/api/users/${id}`)
 }
 
 export function approveUserApi(id: string) {
-  return request.post<ApiResponse<UserDto>>(`/api/${id}/approve/`)
+  return httpClient.post<UserDto>(`/api/users/${id}/approve`)
 }
 
 export function getPendingUsersApi(params?: { page?: number; pageSize?: number }) {
-  return request.get<ApiResponse<PaginatedData<UserDto>>>('/api/pending/', { params })
+  return httpClient.getPaginated<UserDto>('/api/users/pending', params)
 }
 
-export function registerApi(data: { username: string; password: string; email?: string; role?: string }) {
-  return request.post<ApiResponse<UserDto>>('/api/register/', data)
+export function registerApi(data: {
+  username: string
+  password: string
+  email?: string
+  role?: string
+}) {
+  return httpClient.post<UserDto>('/api/users/register', data)
 }

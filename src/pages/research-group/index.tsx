@@ -28,7 +28,7 @@ const ResearchGroup: React.FC = () => {
       getResearchGroupsApi({
         page: pagination.current,
         pageSize: pagination.pageSize,
-      }).then(res => (res as any).data),
+      }),
   })
 
   const createMutation = useMutation({
@@ -42,7 +42,8 @@ const ResearchGroup: React.FC = () => {
   })
 
   const updateMutation = useMutation({
-    mutationFn: (data: { id: string; name: string }) => updateResearchGroupApi(data.id, { name: data.name }),
+    mutationFn: (data: { id: string; name: string }) =>
+      updateResearchGroupApi(data.id, { name: data.name }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['research-groups'] })
       message.success('更新成功')
@@ -110,7 +111,10 @@ const ResearchGroup: React.FC = () => {
       <div className="flex justify-between items-center mb-4">
         <Title level={3}>教研组管理</Title>
         <Space>
-          <Button icon={<ReloadOutlined />} onClick={() => queryClient.invalidateQueries({ queryKey: ['research-groups'] })}>
+          <Button
+            icon={<ReloadOutlined />}
+            onClick={() => queryClient.invalidateQueries({ queryKey: ['research-groups'] })}
+          >
             刷新
           </Button>
           <Button
@@ -144,11 +148,19 @@ const ResearchGroup: React.FC = () => {
         title={editingRecord ? '编辑教研组' : '新增教研组'}
         open={open}
         onOk={handleSubmit}
-        onCancel={() => { setOpen(false); setEditingRecord(null); form.resetFields() }}
+        onCancel={() => {
+          setOpen(false)
+          setEditingRecord(null)
+          form.resetFields()
+        }}
         confirmLoading={createMutation.isPending || updateMutation.isPending}
       >
         <Form form={form} layout="vertical">
-          <Form.Item name="name" label="教研组名称" rules={[{ required: true, message: '请输入教研组名称' }]}>
+          <Form.Item
+            name="name"
+            label="教研组名称"
+            rules={[{ required: true, message: '请输入教研组名称' }]}
+          >
             <Input placeholder="请输入教研组名称" />
           </Form.Item>
         </Form>

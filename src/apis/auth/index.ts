@@ -1,10 +1,10 @@
-import { request } from '@/utils/request'
-import type { ApiResponse, LoginResponse } from '../types'
+import { httpClient } from '@/utils'
+import type { LoginResponse } from '../types'
 
 export function loginApi(data: { username: string; password: string }) {
-  return request.post<ApiResponse<LoginResponse>>('/api/login', data)
+  return httpClient.post<LoginResponse>('/api/login', data)
 }
 
 export function logoutApi(data: { refreshToken: string }) {
-  return request.post<ApiResponse<null>>('/api/logout', data)
+  return httpClient.post<null>('/api/logout', data)
 }

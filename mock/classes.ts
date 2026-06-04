@@ -1,11 +1,5 @@
 import type { MockMethod } from 'vite-plugin-mock'
-import {
-  createClass,
-  deleteClass,
-  getClassById,
-  getClasses,
-  updateClass,
-} from './store'
+import { createClass, deleteClass, getClassById, getClasses, updateClass } from './store'
 import { createErrorResponse, createPaginatedData, createResponse } from './util'
 
 export default [

@@ -5,19 +5,13 @@ import { useNavigate } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import { loginApi } from '@/apis/auth'
 import { useAuthStore } from '@/store'
-import type { ApiResponse, LoginResponse } from '@/apis/types'
-
 export const Component: React.FC = () => {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const { setAuth } = useAuthStore()
 
   const loginMutation = useMutation({
-    mutationFn: async (values: { username: string; password: string }) => {
-      const res = await loginApi(values)
-      // interceptor unwraps AxiosResponse at runtime, but TS sees it as AxiosResponse<ApiResponse<LoginResponse>>
-      return (res as unknown as ApiResponse<LoginResponse>).data
-    },
+    mutationFn: loginApi,
   })
 
   const onFinish = (values: { username: string; password: string }) => {

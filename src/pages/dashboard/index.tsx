@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useMemo, useRef } from 'react'
 import { Card, Col, Row, Select, Typography } from 'antd'
 import {
   TeamOutlined,
@@ -6,7 +6,7 @@ import {
   SolutionOutlined,
   ApartmentOutlined,
 } from '@ant-design/icons'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import * as echarts from 'echarts'
 import { getDashboardStatsApi } from '@/apis/dashboard'
 import { Grade, GradeLabel } from '@/apis/types'
@@ -23,21 +23,15 @@ export const Component: React.FC = () => {
   const chartInstance = useRef<echarts.ECharts | null>(null)
   const [grade, setGrade] = React.useState<string | undefined>(undefined)
 
-  const { data, isLoading } = useQuery({
+  const { data: stats, isPending } = useQuery({
     queryKey: ['dashboard-stats', grade],
-    queryFn: () =>
-      getDashboardStatsApi(grade).then(res => (res as unknown as Record<string, unknown>).data),
+    queryFn: () => getDashboardStatsApi(grade),
+    placeholderData: keepPreviousData,
   })
 
-  const stats = (data as Record<string, unknown> | null) || {
-    totals: { teachers: 0, students: 0, classes: 0, research_groups: 0 },
-    distribution: [],
-    description: '',
-  }
-
-  const totals = stats.totals as Record<string, number>
-  const distribution = (stats.distribution || []) as { label: string; count: number }[]
-  const description = (stats.description as string) || ''
+  const totals = stats?.totals || { teachers: 0, students: 0, classes: 0, research_groups: 0 }
+  const distribution = useMemo(() => stats?.distribution || [], [stats?.distribution])
+  const description = stats?.description || ''
 
   // ECharts 初始化与更新
   useEffect(() => {
@@ -127,7 +121,7 @@ export const Component: React.FC = () => {
       <Row gutter={[16, 16]} className="mb-6">
         {statCards.map(card => (
           <Col xs={24} sm={12} lg={6} key={card.title}>
-            <Card loading={isLoading} className="text-center">
+            <Card loading={isPending} className="text-center">
               <div className="text-3xl font-bold" style={{ color: card.color }}>
                 {card.value}
               </div>

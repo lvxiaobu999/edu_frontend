@@ -1,5 +1,17 @@
 import React, { useState } from 'react'
-import { Button, Form, Input, InputNumber, Modal, Select, Space, Table, Tag, Typography, App } from 'antd'
+import {
+  Button,
+  Form,
+  Input,
+  InputNumber,
+  Modal,
+  Select,
+  Space,
+  Table,
+  Tag,
+  Typography,
+  App,
+} from 'antd'
 import { PlusOutlined, ReloadOutlined } from '@ant-design/icons'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { ColumnsType } from 'antd/es/table'
@@ -18,12 +30,12 @@ const StudentProfilePage: React.FC = () => {
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['student-profile'],
-    queryFn: () => getStudentProfileApi().then(res => (res as any).data as StudentProfileDto),
+    queryFn: getStudentProfileApi,
   })
 
   const { data: classesData } = useQuery({
     queryKey: ['classes'],
-    queryFn: () => getClassesApi().then(res => (res as any).data),
+    queryFn: () => getClassesApi(),
   })
 
   const saveMutation = useMutation({
@@ -64,7 +76,9 @@ const StudentProfilePage: React.FC = () => {
       <div className="flex justify-between items-center mb-4">
         <Title level={3}>学生简介</Title>
         <Space>
-          <Button icon={<ReloadOutlined />} onClick={() => refetch()}>刷新</Button>
+          <Button icon={<ReloadOutlined />} onClick={() => refetch()}>
+            刷新
+          </Button>
           <Button
             type="primary"
             icon={<PlusOutlined />}
@@ -118,10 +132,12 @@ const StudentProfilePage: React.FC = () => {
             <Select
               placeholder="请选择班级"
               allowClear
-              options={(classesData?.list || []).map((c: { id: string; name: string; grade_display: string }) => ({
-                value: c.id,
-                label: `${c.grade_display}${c.name}`,
-              }))}
+              options={(classesData?.list || []).map(
+                (c: { id: string; name: string; grade_display: string }) => ({
+                  value: c.id,
+                  label: `${c.grade_display}${c.name}`,
+                }),
+              )}
             />
           </Form.Item>
           <Form.Item name="address" label="家庭住址">

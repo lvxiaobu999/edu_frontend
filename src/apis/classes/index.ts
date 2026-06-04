@@ -1,5 +1,5 @@
-import { request } from '@/utils/request'
-import type { ApiResponse, PaginatedData, ClassesDto } from '../types'
+import { httpClient } from '@/utils'
+import type { ClassesDto } from '../types'
 
 export function getClassesApi(params?: {
   page?: number
@@ -7,21 +7,24 @@ export function getClassesApi(params?: {
   grade?: string
   name?: string
 }) {
-  return request.get<ApiResponse<PaginatedData<ClassesDto>>>('/api/classes/', { params })
+  return httpClient.getPaginated<ClassesDto>('/api/classes', params)
 }
 
 export function getClassByIdApi(id: string) {
-  return request.get<ApiResponse<ClassesDto>>(`/api/classes/${id}/`)
+  return httpClient.get<ClassesDto>(`/api/classes/${id}`)
 }
 
 export function createClassApi(data: { grade: string; name: string; headmaster?: string }) {
-  return request.post<ApiResponse<ClassesDto>>('/api/classes/', data)
+  return httpClient.post<ClassesDto>('/api/classes', data)
 }
 
-export function updateClassApi(id: string, data: { grade?: string; name?: string; headmaster?: string }) {
-  return request.put<ApiResponse<ClassesDto>>(`/api/classes/${id}/`, data)
+export function updateClassApi(
+  id: string,
+  data: { grade?: string; name?: string; headmaster?: string },
+) {
+  return httpClient.put<ClassesDto>(`/api/classes/${id}`, data)
 }
 
 export function deleteClassApi(id: string) {
-  return request.delete<ApiResponse<null>>(`/api/classes/${id}/`)
+  return httpClient.delete<null>(`/api/classes/${id}`)
 }
