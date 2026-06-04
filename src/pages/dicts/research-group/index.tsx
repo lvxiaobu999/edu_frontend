@@ -133,7 +133,7 @@ const ResearchGroup: React.FC = () => {
 
       <Table
         columns={columns}
-        dataSource={data?.list || []}
+        dataSource={data?.results || []}
         rowKey="id"
         loading={isLoading}
         pagination={{

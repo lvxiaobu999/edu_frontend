@@ -1,7 +1,12 @@
 export function createResponse<T>(data: T, request?: any) {
   const params = request?.query || request?.body || {}
 
-  if (data && typeof data === 'object' && 'list' in data && Array.isArray((data as any).list)) {
+  if (
+    data &&
+    typeof data === 'object' &&
+    'results' in data &&
+    Array.isArray((data as any).results)
+  ) {
     return {
       code: 0,
       success: true,
@@ -39,7 +44,7 @@ export function createPaginatedData<T>(list: T[], request?: any) {
   const pagedList = list.slice(start, start + pageSize)
 
   return {
-    list: pagedList,
+    results: pagedList,
     total: list.length,
     page,
     pageSize,

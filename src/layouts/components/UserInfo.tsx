@@ -13,9 +13,9 @@ const UserInfo: React.FC = () => {
   const navigate = useNavigate()
 
   const logout = async () => {
-    await logoutApi({
-      refresh: refreshToken, // 传 refresh token 以便后端撤销
-    })
+    if (refreshToken) {
+      await logoutApi({ refreshToken })
+    }
     clearAuth()
   }
 

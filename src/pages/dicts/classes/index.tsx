@@ -5,7 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { ColumnsType } from 'antd/es/table'
 import { getClassesApi, createClassApi, updateClassApi, deleteClassApi } from '@/apis/classes'
 import type { ClassesDto } from '@/apis/types'
-import { GradeLabel, GradeOptions } from '@/apis/types'
+import { GradeOptions } from '@/apis/types'
 
 const { Title } = Typography
 
@@ -140,7 +140,7 @@ const ClassesManagement: React.FC = () => {
 
       <Table
         columns={columns}
-        dataSource={data?.list || []}
+        dataSource={data?.results || []}
         rowKey="id"
         loading={isLoading}
         pagination={{

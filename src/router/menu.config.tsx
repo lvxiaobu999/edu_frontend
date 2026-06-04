@@ -2,72 +2,128 @@ import type { ItemType } from 'antd/es/menu/interface'
 import {
   DashboardOutlined,
   UserOutlined,
-  TeamOutlined,
+  BookOutlined,
+  ExperimentOutlined,
+  TrophyOutlined,
   IdcardOutlined,
-  SolutionOutlined,
-  BankOutlined,
+  TeamOutlined,
   ApartmentOutlined,
+  CalendarOutlined,
+  ReadOutlined,
 } from '@ant-design/icons'
 import { Role } from '@/apis/types'
 
-export interface StaticMenuItem extends ItemType {
+export interface MenuItem {
+  key: string
+  label: string
+  icon?: React.ReactNode
   path: string
   roles?: Role[]
+  children?: MenuItem[]
 }
 
-export const menuConfig: StaticMenuItem[] = [
+export const menuConfig: MenuItem[] = [
+  // ============ Dashboard ============
   {
     key: '/dashboard',
     label: '仪表盘',
     icon: <DashboardOutlined />,
     path: '/dashboard',
   },
+  // ============ Users ============
   {
-    key: 'management',
-    label: '系统管理',
-    icon: <TeamOutlined />,
+    key: 'users',
+    label: '用户管理',
+    icon: <UserOutlined />,
     path: '',
     children: [
       {
-        key: '/user',
-        label: '用户管理',
-        icon: <UserOutlined />,
-        path: '/user',
+        key: '/users/admin',
+        label: '管理员',
+        icon: <TeamOutlined />,
+        path: '/users/admin',
         roles: [Role.ADMIN],
       },
       {
-        key: '/teacher',
-        label: '教师简介',
+        key: '/users/teachers',
+        label: '老师',
         icon: <IdcardOutlined />,
-        path: '/teacher',
+        path: '/users/teachers',
       },
       {
-        key: '/student',
-        label: '学生简介',
-        icon: <SolutionOutlined />,
-        path: '/student',
+        key: '/users/students',
+        label: '学生',
+        icon: <UserOutlined />,
+        path: '/users/students',
       },
+    ],
+  },
+  // ============ Dicts ============
+  {
+    key: 'dicts',
+    label: '字典管理',
+    icon: <BookOutlined />,
+    path: '',
+    roles: [Role.ADMIN, Role.TEACHER],
+    children: [
       {
-        key: '/classes',
-        label: '班级管理',
-        icon: <BankOutlined />,
-        path: '/classes',
+        key: '/dicts/classes',
+        label: '班级',
+        icon: <TeamOutlined />,
+        path: '/dicts/classes',
         roles: [Role.ADMIN, Role.TEACHER],
       },
       {
-        key: '/research-group',
+        key: '/dicts/research-group',
         label: '教研组',
         icon: <ApartmentOutlined />,
-        path: '/research-group',
+        path: '/dicts/research-group',
+        roles: [Role.ADMIN, Role.TEACHER],
+      },
+      {
+        key: '/dicts/semester',
+        label: '学期',
+        icon: <CalendarOutlined />,
+        path: '/dicts/semester',
+        roles: [Role.ADMIN, Role.TEACHER],
+      },
+      {
+        key: '/dicts/subject',
+        label: '科目',
+        icon: <ReadOutlined />,
+        path: '/dicts/subject',
         roles: [Role.ADMIN, Role.TEACHER],
       },
     ],
+  },
+  // ============ Exams ============
+  {
+    key: '/exams',
+    label: '考试管理',
+    icon: <ExperimentOutlined />,
+    path: '/exams',
+    roles: [Role.ADMIN, Role.TEACHER],
+  },
+  // ============ Scores ============
+  {
+    key: '/scores',
+    label: '成绩管理',
+    icon: <TrophyOutlined />,
+    path: '/scores',
+    roles: [Role.ADMIN, Role.TEACHER, Role.STUDENT],
+  },
+  // ============ Profile ============
+  {
+    key: '/profile',
+    label: '个人档案',
+    icon: <IdcardOutlined />,
+    path: '/profile',
   },
 ]
 
 /** 获取当前角色可见的菜单项 */
 export function getVisibleMenus(role?: string): ItemType[] {
-  if (!role) return menuConfig.filter(item => !item.roles)
+  if (!role) return menuConfig.filter(item => !item.roles) as unknown as ItemType[]
 
   return menuConfig
     .filter(item => !item.roles || item.roles.includes(role as Role))
@@ -75,7 +131,7 @@ export function getVisibleMenus(role?: string): ItemType[] {
       if (item.children) {
         return {
           ...item,
-          children: (item.children as StaticMenuItem[]).filter(
+          children: item.children.filter(
             child => !child.roles || child.roles.includes(role as Role),
           ),
         }
@@ -84,8 +140,8 @@ export function getVisibleMenus(role?: string): ItemType[] {
     })
     .filter(item => {
       if (item.children) {
-        return (item.children as StaticMenuItem[]).length > 0
+        return item.children.length > 0
       }
       return true
-    })
+    }) as unknown as ItemType[]
 }

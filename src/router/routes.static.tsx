@@ -7,11 +7,16 @@ import { Role } from '@/apis/types'
 
 const Login = lazy(() => import('@/pages/login'))
 const Dashboard = lazy(() => import('@/pages/dashboard'))
-const UserManagement = lazy(() => import('@/pages/user'))
-const TeacherProfile = lazy(() => import('@/pages/teacher'))
-const StudentProfile = lazy(() => import('@/pages/student'))
-const ResearchGroup = lazy(() => import('@/pages/research-group'))
-const ClassesManagement = lazy(() => import('@/pages/classes'))
+const UsersAdmin = lazy(() => import('@/pages/Users/admin'))
+const UsersTeachers = lazy(() => import('@/pages/Users/teachers'))
+const UsersStudents = lazy(() => import('@/pages/Users/students'))
+const DictsClasses = lazy(() => import('@/pages/dicts/classes'))
+const DictsResearchGroup = lazy(() => import('@/pages/dicts/research-group'))
+const DictsSemester = lazy(() => import('@/pages/dicts/semester'))
+const DictsSubject = lazy(() => import('@/pages/dicts/subject'))
+const Exams = lazy(() => import('@/pages/Exams'))
+const Scores = lazy(() => import('@/pages/Scores'))
+const Profile = lazy(() => import('@/pages/Profile'))
 
 export const publicRoutes: RouteObject[] = [
   {
@@ -32,36 +37,68 @@ export const protectedRoutes: RouteObject[] = [
     index: true,
     element: <Navigate to="/dashboard" replace />,
   },
+  // ============ Dashboard ============
   {
     path: '/dashboard',
     element: <Dashboard />,
     handle: { title: '仪表盘', auth: true },
   },
+  // ============ Users ============
   {
-    path: '/user',
-    element: <UserManagement />,
-    handle: { title: '用户管理', auth: true, roles: [Role.ADMIN] },
+    path: '/users/admin',
+    element: <UsersAdmin />,
+    handle: { title: '管理员管理', auth: true, roles: [Role.ADMIN] },
   },
   {
-    path: '/teacher',
-    element: <TeacherProfile />,
-    handle: { title: '教师简介', auth: true },
+    path: '/users/teachers',
+    element: <UsersTeachers />,
+    handle: { title: '老师管理', auth: true },
   },
   {
-    path: '/student',
-    element: <StudentProfile />,
-    handle: { title: '学生简介', auth: true },
+    path: '/users/students',
+    element: <UsersStudents />,
+    handle: { title: '学生管理', auth: true },
+  },
+  // ============ Dicts ============
+  {
+    path: '/dicts/classes',
+    element: <DictsClasses />,
+    handle: { title: '班级字典', auth: true, roles: [Role.ADMIN, Role.TEACHER] },
   },
   {
-    path: '/classes',
-    element: <ClassesManagement />,
-    handle: { title: '班级管理', auth: true, roles: [Role.ADMIN, Role.TEACHER] },
-  },
-  {
-    path: '/research-group',
-    element: <ResearchGroup />,
+    path: '/dicts/research-group',
+    element: <DictsResearchGroup />,
     handle: { title: '教研组', auth: true, roles: [Role.ADMIN, Role.TEACHER] },
   },
+  {
+    path: '/dicts/semester',
+    element: <DictsSemester />,
+    handle: { title: '学期字典', auth: true, roles: [Role.ADMIN, Role.TEACHER] },
+  },
+  {
+    path: '/dicts/subject',
+    element: <DictsSubject />,
+    handle: { title: '科目字典', auth: true, roles: [Role.ADMIN, Role.TEACHER] },
+  },
+  // ============ Exams ============
+  {
+    path: '/exams',
+    element: <Exams />,
+    handle: { title: '考试管理', auth: true, roles: [Role.ADMIN, Role.TEACHER] },
+  },
+  // ============ Scores ============
+  {
+    path: '/scores',
+    element: <Scores />,
+    handle: { title: '成绩管理', auth: true, roles: [Role.ADMIN, Role.TEACHER, Role.STUDENT] },
+  },
+  // ============ Profile ============
+  {
+    path: '/profile',
+    element: <Profile />,
+    handle: { title: '个人档案', auth: true },
+  },
+  // ============ Error ============
   {
     path: '/403',
     element: <ForbiddenPage />,
