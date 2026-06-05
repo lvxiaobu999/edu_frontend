@@ -5,10 +5,11 @@ import { useI18n } from '@/i18n'
 import { UserOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { logoutApi } from '@/apis/auth'
-import { RoleLabel, type Role } from '@/apis/types'
+import { useChoicesStore } from '@/store'
 
 const UserInfo: React.FC = () => {
   const { user, accessToken, refreshToken, clearAuth } = useAuthStore()
+  const { getLabel } = useChoicesStore()
   const { locale, setLocale, t } = useI18n()
   const navigate = useNavigate()
 
@@ -34,7 +35,7 @@ const UserInfo: React.FC = () => {
         <Avatar icon={<UserOutlined />} size={36} />
         <div className="text-[12px] text-[var(--el-text-color-regular)] leading-[18px]">
           <p>{user?.username}</p>
-          <p>{RoleLabel[user?.role as Role] || ''}</p>
+          <p>{user?.role ? getLabel('roles', user.role) : ''}</p>
         </div>
       </div>
       <Divider orientation="horizontal" className="my-[20px]" />

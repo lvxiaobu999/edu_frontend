@@ -9,19 +9,16 @@ import {
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import * as echarts from 'echarts'
 import { getDashboardStatsApi } from '@/apis/dashboard'
-import { Grade, GradeLabel } from '@/apis/types'
+import { useChoicesStore } from '@/store'
 
 const { Title, Text } = Typography
-
-const gradeOptions = Object.values(Grade).map(g => ({
-  value: g,
-  label: GradeLabel[g],
-}))
 
 export const Component: React.FC = () => {
   const chartRef = useRef<HTMLDivElement>(null)
   const chartInstance = useRef<echarts.ECharts | null>(null)
   const [grade, setGrade] = React.useState<string | undefined>(undefined)
+  const { getOptions } = useChoicesStore()
+  const gradeOptions = getOptions('grades')
 
   const { data: stats, isPending } = useQuery({
     queryKey: ['dashboard-stats', grade],

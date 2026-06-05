@@ -8,14 +8,6 @@ export const Role = {
 
 export type Role = (typeof Role)[keyof typeof Role]
 
-export const RoleLabel: Record<Role, string> = {
-  [Role.ADMIN]: '管理员',
-  [Role.TEACHER]: '老师',
-  [Role.STUDENT]: '学生',
-}
-
-export const RoleOptions = Object.entries(RoleLabel).map(([value, label]) => ({ value, label }))
-
 // ============ 性别 ============
 
 export const Gender = {
@@ -24,13 +16,6 @@ export const Gender = {
 } as const
 
 export type Gender = (typeof Gender)[keyof typeof Gender]
-
-export const GenderLabel: Record<Gender, string> = {
-  [Gender.MALE]: '男',
-  [Gender.FEMALE]: '女',
-}
-
-export const GenderOptions = Object.entries(GenderLabel).map(([value, label]) => ({ value, label }))
 
 // ============ 年级 ============
 
@@ -50,23 +35,6 @@ export const Grade = {
 } as const
 
 export type Grade = (typeof Grade)[keyof typeof Grade]
-
-export const GradeLabel: Record<Grade, string> = {
-  [Grade.GRADE_1]: '一年级',
-  [Grade.GRADE_2]: '二年级',
-  [Grade.GRADE_3]: '三年级',
-  [Grade.GRADE_4]: '四年级',
-  [Grade.GRADE_5]: '五年级',
-  [Grade.GRADE_6]: '六年级',
-  [Grade.GRADE_7]: '七年级',
-  [Grade.GRADE_8]: '八年级',
-  [Grade.GRADE_9]: '九年级',
-  [Grade.SENIOR_1]: '高一',
-  [Grade.SENIOR_2]: '高二',
-  [Grade.SENIOR_3]: '高三',
-}
-
-export const GradeOptions = Object.entries(GradeLabel).map(([value, label]) => ({ value, label }))
 
 // ============ 用户（匹配后端 User model） ============
 

@@ -25,7 +25,7 @@ import {
   getPendingUsersApi,
 } from '@/apis/user'
 import type { UserDto } from '@/apis/types'
-import { RoleLabel, RoleOptions } from '@/apis/types'
+import { useChoicesStore } from '@/store'
 
 const { Title } = Typography
 
@@ -36,6 +36,7 @@ const UserManagement: React.FC = () => {
   const [form] = Form.useForm()
   const queryClient = useQueryClient()
   const { message } = App.useApp()
+  const { getLabel, getOptions } = useChoicesStore()
 
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10 })
 
@@ -98,11 +99,7 @@ const UserManagement: React.FC = () => {
       key: 'role',
       render: (role: string) => {
         const colors: Record<string, string> = { ADMIN: 'red', TEACHER: 'blue', STUDENT: 'green' }
-        return (
-          <Tag color={colors[role] || 'default'}>
-            {RoleLabel[role as keyof typeof RoleLabel] || role}
-          </Tag>
-        )
+        return <Tag color={colors[role] || 'default'}>{getLabel('roles', role) || role}</Tag>
       },
     },
     { title: '邮箱', dataIndex: 'email', key: 'email' },
@@ -246,7 +243,7 @@ const UserManagement: React.FC = () => {
             <Input placeholder="请输入真实姓名" />
           </Form.Item>
           <Form.Item name="role" label="角色" rules={[{ required: true }]}>
-            <Select options={RoleOptions} placeholder="请选择角色" />
+            <Select options={getOptions('roles')} placeholder="请选择角色" />
           </Form.Item>
           <Form.Item name="email" label="邮箱">
             <Input placeholder="请输入邮箱" />

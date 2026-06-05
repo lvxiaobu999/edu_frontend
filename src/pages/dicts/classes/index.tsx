@@ -5,7 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { ColumnsType } from 'antd/es/table'
 import { getClassesApi, createClassApi, updateClassApi, deleteClassApi } from '@/apis/classes'
 import type { ClassesDto } from '@/apis/types'
-import { GradeOptions } from '@/apis/types'
+import { useChoicesStore } from '@/store'
 
 const { Title } = Typography
 
@@ -15,6 +15,7 @@ const ClassesManagement: React.FC = () => {
   const [form] = Form.useForm()
   const queryClient = useQueryClient()
   const { message } = App.useApp()
+  const { getOptions } = useChoicesStore()
 
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10 })
 
@@ -164,7 +165,7 @@ const ClassesManagement: React.FC = () => {
       >
         <Form form={form} layout="vertical">
           <Form.Item name="grade" label="年级" rules={[{ required: true, message: '请选择年级' }]}>
-            <Select options={GradeOptions} placeholder="请选择年级" />
+            <Select options={getOptions('grades')} placeholder="请选择年级" />
           </Form.Item>
           <Form.Item
             name="name"

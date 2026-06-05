@@ -18,7 +18,7 @@ import type { ColumnsType } from 'antd/es/table'
 import { getTeacherProfileApi, saveTeacherProfileApi } from '@/apis/teacher'
 import { getResearchGroupsApi } from '@/apis/research-group'
 import type { TeacherProfileDto } from '@/apis/types'
-import { GenderLabel, GenderOptions } from '@/apis/types'
+import { useChoicesStore } from '@/store'
 
 const { Title } = Typography
 
@@ -27,6 +27,7 @@ const TeacherProfilePage: React.FC = () => {
   const [form] = Form.useForm()
   const queryClient = useQueryClient()
   const { message } = App.useApp()
+  const { getLabel, getOptions } = useChoicesStore()
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['teacher-profile'],
@@ -56,7 +57,7 @@ const TeacherProfilePage: React.FC = () => {
       title: '性别',
       dataIndex: 'gender',
       key: 'gender',
-      render: (v: string) => GenderLabel[v as keyof typeof GenderLabel] || '-',
+      render: (v: string) => getLabel('genders', v) || '-',
     },
     { title: '年龄', dataIndex: 'age', key: 'age' },
     { title: '地址', dataIndex: 'address', key: 'address', ellipsis: true },
@@ -128,7 +129,7 @@ const TeacherProfilePage: React.FC = () => {
             <Input placeholder="请输入电话" />
           </Form.Item>
           <Form.Item name="gender" label="性别">
-            <Select options={GenderOptions} placeholder="请选择性别" allowClear />
+            <Select options={getOptions('genders')} placeholder="请选择性别" allowClear />
           </Form.Item>
           <Form.Item name="age" label="年龄">
             <InputNumber min={1} max={150} style={{ width: '100%' }} />
