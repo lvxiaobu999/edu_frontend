@@ -129,7 +129,7 @@ const handleUnauthorized = async (instance: AxiosInstance, config: InternalAxios
     try {
       // 注意：这里必须使用基础 axios 发起请求，或者在 config 中配置 skipToken
       // 避免刷新 Token 的请求也被当前实例拦截，陷入死循环
-      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/token/refresh/`, {
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/token_refresh/`, {
         refresh: refreshToken,
       })
 
@@ -146,7 +146,7 @@ const handleUnauthorized = async (instance: AxiosInstance, config: InternalAxios
         config.headers.Authorization = `Bearer ${newAccessToken}`
       }
       return instance(config)
-    } catch (refreshError) {
+    } catch (_refreshError) {
       // 2. 如果 Refresh Token 也过期了或刷新失败，强制退出
       requestsQueue = [] // 清空队列
       forceLogout(authStore)
