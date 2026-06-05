@@ -1,5 +1,6 @@
 import { useAuthStore } from '@/store'
 import { message } from 'antd'
+import { refreshTokenApi } from '@/apis/auth'
 import type { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 import axios from 'axios'
 
@@ -129,9 +130,7 @@ const handleUnauthorized = async (instance: AxiosInstance, config: InternalAxios
     try {
       // 注意：这里必须使用基础 axios 发起请求，或者在 config 中配置 skipToken
       // 避免刷新 Token 的请求也被当前实例拦截，陷入死循环
-      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/token_refresh/`, {
-        refresh: refreshToken,
-      })
+      const res = await refreshTokenApi(refreshToken)
 
       const newAccessToken = res.data.access
       // 假设你的 authStore 有更新 Token 的方法
