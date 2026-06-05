@@ -103,6 +103,21 @@ export interface StudentProfileDto {
   class_name: string
 }
 
+// ============ 科目（匹配后端 SubjectDict model） ============
+
+export interface SubjectDto {
+  id: string
+  name: string
+}
+
+// ============ 学期（匹配后端 SemesterDict model） ============
+
+export interface SemesterDto {
+  id: string
+  name: string
+  display_name: string
+}
+
 // ============ 教研组（匹配后端 ResearchGroup model） ============
 
 export interface ResearchGroupDto {

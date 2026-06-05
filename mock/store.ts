@@ -410,6 +410,87 @@ export const deleteResearchGroup = (id: string) => {
   researchGroupStore = researchGroupStore.filter(g => g.id !== id)
 }
 
+// ============ 科目存储 ============
+
+type SubjectRecord = { id: string; name: string }
+
+let subjectStore: SubjectRecord[] = [
+  { id: 'sub1', name: '语文' },
+  { id: 'sub2', name: '数学' },
+  { id: 'sub3', name: '英语' },
+  { id: 'sub4', name: '物理' },
+  { id: 'sub5', name: '化学' },
+  { id: 'sub6', name: '生物' },
+  { id: 'sub7', name: '地理' },
+  { id: 'sub8', name: '历史' },
+  { id: 'sub9', name: '政治' },
+  { id: 'sub10', name: '科学' },
+  { id: 'sub11', name: '体育' },
+  { id: 'sub12', name: '音乐' },
+  { id: 'sub13', name: '美术' },
+  { id: 'sub14', name: '信息技术' },
+  { id: 'sub15', name: '通用技术' },
+  { id: 'sub16', name: '劳动' },
+  { id: 'sub17', name: '综合实践' },
+  { id: 'sub18', name: '书法' },
+  { id: 'sub19', name: '心理健康' },
+]
+
+export const getSubjects = () => subjectStore
+export const getSubjectById = (id: string) => subjectStore.find(s => s.id === id) ?? null
+
+export const createSubject = (payload: { name: string }) => {
+  const s: SubjectRecord = { id: createId('sub'), name: payload.name }
+  subjectStore = [s, ...subjectStore]
+  return s
+}
+
+export const updateSubject = (id: string, payload: { name: string }) => {
+  const index = subjectStore.findIndex(s => s.id === id)
+  if (index === -1) return null
+  subjectStore[index] = { id, name: payload.name }
+  return subjectStore[index]
+}
+
+export const deleteSubject = (id: string) => {
+  subjectStore = subjectStore.filter(s => s.id !== id)
+}
+
+// ============ 学期存储 ============
+
+type SemesterRecord = { id: string; name: string; display_name: string }
+
+let semesterStore: SemesterRecord[] = [
+  { id: 's1', name: '2023-2024-1', display_name: '2023-2024学年第一学期' },
+  { id: 's2', name: '2023-2024-2', display_name: '2023-2024学年第二学期' },
+  { id: 's3', name: '2024-2025-1', display_name: '2024-2025学年第一学期' },
+  { id: 's4', name: '2024-2025-2', display_name: '2024-2025学年第二学期' },
+  { id: 's5', name: '2025-2026-1', display_name: '2025-2026学年第一学期' },
+  { id: 's6', name: '2025-2026-2', display_name: '2025-2026学年第二学期' },
+  { id: 's7', name: '2026-2027-1', display_name: '2026-2027学年第一学期' },
+  { id: 's8', name: '2026-2027-2', display_name: '2026-2027学年第二学期' },
+]
+
+export const getSemesters = () => semesterStore
+export const getSemesterById = (id: string) => semesterStore.find(s => s.id === id) ?? null
+
+export const createSemester = (payload: { name: string; display_name: string }) => {
+  const s: SemesterRecord = { id: createId('sem'), name: payload.name, display_name: payload.display_name }
+  semesterStore = [s, ...semesterStore]
+  return s
+}
+
+export const updateSemester = (id: string, payload: { name?: string; display_name?: string }) => {
+  const index = semesterStore.findIndex(s => s.id === id)
+  if (index === -1) return null
+  semesterStore[index] = { ...semesterStore[index], ...payload, id }
+  return semesterStore[index]
+}
+
+export const deleteSemester = (id: string) => {
+  semesterStore = semesterStore.filter(s => s.id !== id)
+}
+
 // ============ 仪表盘统计 ============
 
 const gradeOrder = [

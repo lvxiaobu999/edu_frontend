@@ -15,7 +15,7 @@ const UserInfo: React.FC = () => {
 
   const logout = async () => {
     if (refreshToken) {
-      await logoutApi({ refreshToken })
+      await logoutApi({ refresh: refreshToken })
     }
     clearAuth()
   }

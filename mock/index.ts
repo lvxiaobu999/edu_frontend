@@ -7,6 +7,8 @@ import teacher from './teacher'
 import student from './student'
 import researchGroup from './research-group'
 import classes from './classes'
+import semester from './semester'
+import subject from './subject'
 import choices from './choices'
 
 export default [
@@ -17,5 +19,7 @@ export default [
   ...student,
   ...researchGroup,
   ...classes,
+  ...semester,
+  ...subject,
   ...choices,
 ] as MockMethod[]

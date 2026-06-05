@@ -15,8 +15,13 @@ import {
 import { PlusOutlined, ReloadOutlined } from '@ant-design/icons'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { ColumnsType } from 'antd/es/table'
-import { getTeacherProfileApi, saveTeacherProfileApi } from '@/apis/teacher'
+import {
+  getTeacherProfileApi,
+  saveTeacherProfileApi,
+  updateTeacherProfileApi,
+} from '@/apis/teacher'
 import { getResearchGroupsApi } from '@/apis/research-group'
+import { getClassesApi } from '@/apis/classes'
 import type { TeacherProfileDto } from '@/apis/types'
 import { useChoicesStore } from '@/store'
 
@@ -39,8 +44,18 @@ const TeacherProfilePage: React.FC = () => {
     queryFn: () => getResearchGroupsApi(),
   })
 
+  const { data: classesData } = useQuery({
+    queryKey: ['classes'],
+    queryFn: () => getClassesApi(),
+  })
+
   const saveMutation = useMutation({
-    mutationFn: saveTeacherProfileApi,
+    mutationFn: (data: Record<string, unknown>) => {
+      if (profile) {
+        return updateTeacherProfileApi(data as any)
+      }
+      return saveTeacherProfileApi(data as any)
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['teacher-profile'] })
       message.success('保存成功')
@@ -66,6 +81,21 @@ const TeacherProfilePage: React.FC = () => {
       dataIndex: 'research_group_names',
       key: 'research_group_names',
       render: (names: string[]) => (names?.length ? names.map(n => <Tag key={n}>{n}</Tag>) : '-'),
+    },
+    {
+      title: '所管班级',
+      dataIndex: 'class_ids',
+      key: 'class_ids',
+      render: (ids: string[]) => {
+        if (!ids?.length) return '-'
+        const classMap = new Map(
+          (classesData?.results || []).map((c: { id: string; name: string; grade_display: string }) => [
+            c.id,
+            `${c.grade_display}${c.name}`,
+          ]),
+        )
+        return ids.map(id => <Tag key={id}>{classMap.get(id) || id}</Tag>)
+      },
     },
   ]
 
@@ -145,6 +175,18 @@ const TeacherProfilePage: React.FC = () => {
                 value: g.id,
                 label: g.name,
               }))}
+            />
+          </Form.Item>
+          <Form.Item name="class_ids" label="所管班级">
+            <Select
+              mode="multiple"
+              placeholder="请选择所管班级"
+              options={(classesData?.results || []).map(
+                (c: { id: string; name: string; grade_display: string }) => ({
+                  value: c.id,
+                  label: `${c.grade_display}${c.name}`,
+                }),
+              )}
             />
           </Form.Item>
         </Form>
