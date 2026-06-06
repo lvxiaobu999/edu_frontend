@@ -130,11 +130,13 @@ const handleUnauthorized = async (instance: AxiosInstance, config: InternalAxios
     try {
       // 注意：这里必须使用基础 axios 发起请求，或者在 config 中配置 skipToken
       // 避免刷新 Token 的请求也被当前实例拦截，陷入死循环
-      const res = await refreshTokenApi(refreshToken)
 
-      const newAccessToken = res.data.access
-      // 假设你的 authStore 有更新 Token 的方法
-      authStore.updateAccessToken(newAccessToken)
+      const data = await refreshTokenApi(refreshToken!)
+
+      const newAccessToken = data.access
+      const newRefreshToken = data.refresh
+      // // 假设你的 authStore 有更新 Token 的方法
+      authStore.updateToken(newAccessToken, newRefreshToken)
 
       // Token 刷新成功，执行队列里挂起的请求
       requestsQueue.forEach(cb => cb(newAccessToken))
@@ -170,6 +172,7 @@ const handleUnauthorized = async (instance: AxiosInstance, config: InternalAxios
 
 // 强制退出的通用方法
 const forceLogout = (authStore: any) => {
+  console.log('强制退出，清除认证状态')
   authStore.clearAuth()
   message.error('登录状态已失效，请重新登录')
   window.location.href = '/login'

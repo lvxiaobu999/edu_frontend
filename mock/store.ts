@@ -216,10 +216,11 @@ let classesStore: ClassesRecord[] = [
   },
 ]
 
-export const getClasses = (query?: { grade?: string; name?: string }) =>
+export const getClasses = (query?: { grade?: string; name?: string; headmaster?: string }) =>
   classesStore.filter(c => {
     if (query?.grade && c.grade !== query.grade) return false
     if (query?.name && !c.name.includes(query.name)) return false
+    if (query?.headmaster && !c.headmaster_name.includes(query.headmaster)) return false
     return true
   })
 
