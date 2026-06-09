@@ -6,6 +6,7 @@ export function getClassesApi(params?: {
   pageSize?: number
   grade?: string
   name?: string
+  headmaster?: string
 }) {
   return httpClient.getPaginated<ClassesDto>('/api/classes', params)
 }

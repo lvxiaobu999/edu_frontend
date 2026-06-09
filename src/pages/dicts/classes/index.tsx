@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
-import { Button, Form, Input, Modal, Select, Space, Table, Typography, App } from 'antd'
+import { Button, Form, Input, Modal, Select, Space, Typography, App } from 'antd'
 import { PlusOutlined, ReloadOutlined } from '@ant-design/icons'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import type { ColumnsType } from 'antd/es/table'
 import { getClassesApi, createClassApi, updateClassApi, deleteClassApi } from '@/apis/classes'
 import type { ClassesDto } from '@/apis/types'
 import { useChoicesStore } from '@/store'
+import ClassesSearch from './components/ClassesSearch'
+import ClassesTable from './components/ClassesTable'
 
 const { Title } = Typography
 
@@ -18,13 +19,18 @@ const ClassesManagement: React.FC = () => {
   const { getOptions } = useChoicesStore()
 
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10 })
+  const [searchInput, setSearchInput] = useState({ grade: '', name: '', headmaster: '' })
+  const [filters, setFilters] = useState({ grade: '', name: '', headmaster: '' })
 
   const { data, isLoading } = useQuery({
-    queryKey: ['classes', pagination],
+    queryKey: ['classes', pagination, filters],
     queryFn: () =>
       getClassesApi({
         page: pagination.current,
         pageSize: pagination.pageSize,
+        ...(filters.grade && { grade: filters.grade }),
+        ...(filters.name && { name: filters.name }),
+        ...(filters.headmaster && { headmaster: filters.headmaster }),
       }),
   })
 
@@ -58,52 +64,6 @@ const ClassesManagement: React.FC = () => {
     },
   })
 
-  const columns: ColumnsType<ClassesDto> = [
-    {
-      title: '年级',
-      dataIndex: 'grade_display',
-      key: 'grade_display',
-    },
-    { title: '班级名称', dataIndex: 'name', key: 'name' },
-    {
-      title: '班主任',
-      dataIndex: 'headmaster_name',
-      key: 'headmaster_name',
-      render: (v: string) => v || '未指定',
-    },
-    {
-      title: '操作',
-      key: 'actions',
-      render: (_, record) => (
-        <Space>
-          <Button
-            type="link"
-            onClick={() => {
-              setEditingRecord(record)
-              form.setFieldsValue(record)
-              setOpen(true)
-            }}
-          >
-            编辑
-          </Button>
-          <Button
-            type="link"
-            danger
-            onClick={() => {
-              Modal.confirm({
-                title: '确认删除',
-                content: `确定要删除班级"${record.grade_display}${record.name}"吗？`,
-                onOk: () => deleteMutation.mutate(record.id),
-              })
-            }}
-          >
-            删除
-          </Button>
-        </Space>
-      ),
-    },
-  ]
-
   const handleSubmit = () => {
     form.validateFields().then(values => {
       if (editingRecord) {
@@ -114,15 +74,39 @@ const ClassesManagement: React.FC = () => {
     })
   }
 
+  const handleSearch = () => {
+    setFilters({ ...searchInput })
+    setPagination(prev => ({ ...prev, current: 1 }))
+    queryClient.invalidateQueries({ queryKey: ['classes'] })
+  }
+
+  const handleReset = () => {
+    setSearchInput({ grade: '', name: '', headmaster: '' })
+    setFilters({ grade: '', name: '', headmaster: '' })
+    setPagination({ current: 1, pageSize: 10 })
+    queryClient.invalidateQueries({ queryKey: ['classes'] })
+  }
+
+  const handleSearchInputChange = (key: keyof typeof searchInput, value: string) => {
+    setSearchInput(prev => ({ ...prev, [key]: value }))
+  }
+
+  const handleEdit = (record: ClassesDto) => {
+    setEditingRecord(record)
+    form.setFieldsValue(record)
+    setOpen(true)
+  }
+
+  const handleDelete = (record: ClassesDto) => {
+    deleteMutation.mutate(record.id)
+  }
+
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-4">
         <Title level={3}>班级管理</Title>
         <Space>
-          <Button
-            icon={<ReloadOutlined />}
-            onClick={() => queryClient.invalidateQueries({ queryKey: ['classes'] })}
-          >
+          <Button icon={<ReloadOutlined />} onClick={handleReset}>
             刷新
           </Button>
           <Button
@@ -139,10 +123,15 @@ const ClassesManagement: React.FC = () => {
         </Space>
       </div>
 
-      <Table
-        columns={columns}
+      <ClassesSearch
+        searchInput={searchInput}
+        onSearchInputChange={handleSearchInputChange}
+        onSearch={handleSearch}
+        gradeOptions={getOptions('grades')}
+      />
+
+      <ClassesTable
         dataSource={data?.results || []}
-        rowKey="id"
         loading={isLoading}
         pagination={{
           current: data?.page || pagination.current,
@@ -150,6 +139,8 @@ const ClassesManagement: React.FC = () => {
           total: data?.total || 0,
           onChange: (page, pageSize) => setPagination({ current: page, pageSize }),
         }}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
       />
 
       <Modal
