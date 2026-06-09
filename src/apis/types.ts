@@ -125,6 +125,20 @@ export interface ResearchGroupDto {
   name: string
 }
 
+// ============ 考试（匹配后端 ExamPlan model） ============
+
+export interface ExamDto {
+  id: string
+  name: string
+  exam_type: string
+  exam_type_display: string
+  exam_date: string
+  grade: string
+  grade_display: string
+  semester: string
+  semester_display: string
+}
+
 // ============ 仪表盘统计 ============
 
 export interface DashboardStats {

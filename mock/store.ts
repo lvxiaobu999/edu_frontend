@@ -492,6 +492,150 @@ export const deleteSemester = (id: string) => {
   semesterStore = semesterStore.filter(s => s.id !== id)
 }
 
+// ============ 考试存储 ============
+
+type ExamRecord = {
+  id: string
+  name: string
+  exam_type: string
+  exam_type_display: string
+  exam_date: string
+  grade: string
+  grade_display: string
+  semester: string
+  semester_display: string
+}
+
+const examTypeDisplay: Record<string, string> = {
+  MONTHLY: '月考',
+  MOCK: '模拟考',
+  MIDTERM: '期中',
+  FINAL: '期末',
+}
+
+let examStore: ExamRecord[] = [
+  {
+    id: 'e1',
+    name: '2025-2026学年第二学期高一月考',
+    exam_type: 'MONTHLY',
+    exam_type_display: '月考',
+    exam_date: '2026-03-15',
+    grade: 'SENIOR_1',
+    grade_display: '高一',
+    semester: 's5',
+    semester_display: '2025-2026学年第二学期',
+  },
+  {
+    id: 'e2',
+    name: '2025-2026学年第二学期高一期中考试',
+    exam_type: 'MIDTERM',
+    exam_type_display: '期中',
+    exam_date: '2026-04-20',
+    grade: 'SENIOR_1',
+    grade_display: '高一',
+    semester: 's5',
+    semester_display: '2025-2026学年第二学期',
+  },
+  {
+    id: 'e3',
+    name: '2025-2026学年第二学期高二期中考试',
+    exam_type: 'MIDTERM',
+    exam_type_display: '期中',
+    exam_date: '2026-04-21',
+    grade: 'SENIOR_2',
+    grade_display: '高二',
+    semester: 's5',
+    semester_display: '2025-2026学年第二学期',
+  },
+  {
+    id: 'e4',
+    name: '2025-2026学年第二学期高一期末考试',
+    exam_type: 'FINAL',
+    exam_type_display: '期末',
+    exam_date: '2026-06-25',
+    grade: 'SENIOR_1',
+    grade_display: '高一',
+    semester: 's5',
+    semester_display: '2025-2026学年第二学期',
+  },
+  {
+    id: 'e5',
+    name: '2025-2026学年第二学期高三模拟考',
+    exam_type: 'MOCK',
+    exam_type_display: '模拟考',
+    exam_date: '2026-05-10',
+    grade: 'SENIOR_3',
+    grade_display: '高三',
+    semester: 's5',
+    semester_display: '2025-2026学年第二学期',
+  },
+]
+
+export const getExams = (query?: { exam_type?: string; grade?: string; semester?: string }) =>
+  examStore.filter(e => {
+    if (query?.exam_type && e.exam_type !== query.exam_type) return false
+    if (query?.grade && e.grade !== query.grade) return false
+    if (query?.semester && e.semester !== query.semester) return false
+    return true
+  })
+
+export const getExamById = (id: string) => examStore.find(e => e.id === id) ?? null
+
+export const createExam = (payload: {
+  exam_type: string
+  exam_date: string
+  grade: string
+  semester: string
+}) => {
+  const sem = semesterStore.find(s => s.id === payload.semester)
+  const gradeLabel = gradeDisplayMap[payload.grade] || payload.grade
+  const typeLabel = examTypeDisplay[payload.exam_type] || payload.exam_type
+  const semesterLabel = sem?.display_name || ''
+  const name = `${semesterLabel}${gradeLabel}${typeLabel}`
+  const s: ExamRecord = {
+    id: createId('exam'),
+    name,
+    exam_type: payload.exam_type,
+    exam_type_display: typeLabel,
+    exam_date: payload.exam_date,
+    grade: payload.grade,
+    grade_display: gradeLabel,
+    semester: payload.semester,
+    semester_display: semesterLabel,
+  }
+  examStore = [s, ...examStore]
+  return s
+}
+
+export const updateExam = (
+  id: string,
+  payload: {
+    exam_type?: string
+    exam_date?: string
+    grade?: string
+    semester?: string
+  },
+) => {
+  const index = examStore.findIndex(e => e.id === id)
+  if (index === -1) return null
+  const current = examStore[index]
+  const merged = { ...current, ...payload }
+  if (payload.exam_type) merged.exam_type_display = examTypeDisplay[payload.exam_type] || payload.exam_type
+  if (payload.grade) merged.grade_display = gradeDisplayMap[payload.grade] || payload.grade
+  if (payload.semester) {
+    const sem = semesterStore.find(s => s.id === payload.semester)
+    merged.semester_display = sem?.display_name || ''
+  }
+  const sem = semesterStore.find(s => s.id === merged.semester)
+  merged.name = `${sem?.display_name || ''}${merged.grade_display}${merged.exam_type_display}`
+  examStore[index] = { ...merged, id }
+  return examStore[index]
+}
+
+export const deleteExam = (id: string) => {
+  examStore = examStore.filter(e => e.id !== id)
+}
+
 // ============ 仪表盘统计 ============
 
 const gradeOrder = [
