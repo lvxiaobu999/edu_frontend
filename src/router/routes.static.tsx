@@ -7,16 +7,16 @@ import { Role } from '@/apis/types'
 
 const Login = lazy(() => import('@/pages/login'))
 const Dashboard = lazy(() => import('@/pages/dashboard'))
-const UsersAdmin = lazy(() => import('@/pages/Users/admin'))
-const UsersTeachers = lazy(() => import('@/pages/Users/teachers'))
-const UsersStudents = lazy(() => import('@/pages/Users/students'))
+const UsersAdmin = lazy(() => import('@/pages/users/admin'))
+const UsersTeachers = lazy(() => import('@/pages/users/teachers'))
+const UsersStudents = lazy(() => import('@/pages/users/students'))
 const DictsClasses = lazy(() => import('@/pages/dicts/classes'))
 const DictsResearchGroup = lazy(() => import('@/pages/dicts/research-group'))
 const DictsSemester = lazy(() => import('@/pages/dicts/semester'))
 const DictsSubject = lazy(() => import('@/pages/dicts/subject'))
-const Exams = lazy(() => import('@/pages/Exams'))
-const Scores = lazy(() => import('@/pages/Scores'))
-const Profile = lazy(() => import('@/pages/Profile'))
+const Exams = lazy(() => import('@/pages/exams'))
+const Scores = lazy(() => import('@/pages/scores'))
+const Profile = lazy(() => import('@/pages/profile'))
 
 export const publicRoutes: RouteObject[] = [
   {
