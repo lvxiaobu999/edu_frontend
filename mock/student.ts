@@ -1,36 +1,54 @@
 import type { MockMethod } from 'vite-plugin-mock'
-import { createOrUpdateStudent, getStudentByUser } from './store'
-import { createErrorResponse, createResponse } from './util'
+import {
+  createStudent,
+  deleteStudent,
+  getAllStudents,
+  getStudentById,
+  updateStudent,
+} from './store'
+import { createErrorResponse, createPaginatedData, createResponse } from './util'
 
 export default [
   {
-    url: '/api/profile/student/',
+    url: '/api/students/',
     method: 'get',
     timeout: 300,
     response: (request: any) => {
-      const userId = '4' // 默认学生
-      const student = getStudentByUser(userId)
-      return student ? createResponse(student, request) : createErrorResponse('未完善简介', 404)
+      const list = getAllStudents()
+      return createResponse(createPaginatedData(list, request), request)
     },
   },
   {
-    url: '/api/profile/student/',
-    method: 'post',
+    url: '/api/students/:id/',
+    method: 'get',
     timeout: 300,
     response: (request: any) => {
-      const userId = '4'
-      const student = createOrUpdateStudent(request.body, userId)
-      return createResponse(student, request)
+      const student = getStudentById(request.params.id)
+      return student ? createResponse(student, request) : createErrorResponse('学生不存在', 404)
     },
   },
   {
-    url: '/api/profile/student/',
+    url: '/api/students/',
+    method: 'post',
+    timeout: 300,
+    response: (request: any) => createResponse(createStudent(request.body), request),
+  },
+  {
+    url: '/api/students/:id/',
     method: 'put',
     timeout: 300,
     response: (request: any) => {
-      const userId = '4'
-      const student = createOrUpdateStudent(request.body, userId)
-      return createResponse(student, request)
+      const updated = updateStudent(request.params.id, request.body)
+      return updated ? createResponse(updated, request) : createErrorResponse('学生不存在', 404)
+    },
+  },
+  {
+    url: '/api/students/:id/',
+    method: 'delete',
+    timeout: 300,
+    response: (request: any) => {
+      deleteStudent(request.params.id)
+      return createResponse(null, request)
     },
   },
 ] as MockMethod[]

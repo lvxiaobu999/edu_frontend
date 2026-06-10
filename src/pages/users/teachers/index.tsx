@@ -16,28 +16,38 @@ import { PlusOutlined, ReloadOutlined } from '@ant-design/icons'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { ColumnsType } from 'antd/es/table'
 import {
-  getTeacherProfileApi,
-  saveTeacherProfileApi,
-  updateTeacherProfileApi,
+  getAllTeachersApi,
+  saveTeacherApi,
+  updateTeacherApi,
+  deleteTeacherApi,
 } from '@/apis/teacher'
 import { getResearchGroupsApi } from '@/apis/research-group'
 import { getClassesApi } from '@/apis/classes'
-import type { TeacherProfileDto } from '@/apis/types'
+import type { TeacherDto } from '@/apis/types'
 import { useChoicesStore } from '@/store'
 
 const { Title } = Typography
 
 const TeacherProfilePage: React.FC = () => {
   const [open, setOpen] = useState(false)
+  const [editingRecord, setEditingRecord] = useState<TeacherDto | null>(null)
   const [form] = Form.useForm()
   const queryClient = useQueryClient()
   const { message } = App.useApp()
   const { getLabel, getOptions } = useChoicesStore()
 
-  const { data, isLoading, refetch } = useQuery({
-    queryKey: ['teacher-profile'],
-    queryFn: getTeacherProfileApi,
+  const [pagination, setPagination] = useState({ current: 1, pageSize: 10 })
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['teachers', pagination],
+    queryFn: () =>
+      getAllTeachersApi({
+        page: pagination.current,
+        pageSize: pagination.pageSize,
+      }),
   })
+
+  console.log('teachers data', data)
 
   const { data: groupsData } = useQuery({
     queryKey: ['research-groups'],
@@ -49,21 +59,36 @@ const TeacherProfilePage: React.FC = () => {
     queryFn: () => getClassesApi(),
   })
 
-  const saveMutation = useMutation({
-    mutationFn: (data: Record<string, unknown>) => {
-      if (profile) {
-        return updateTeacherProfileApi(data as any)
-      }
-      return saveTeacherProfileApi(data as any)
-    },
+  const createMutation = useMutation({
+    mutationFn: saveTeacherApi,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['teacher-profile'] })
-      message.success('保存成功')
+      queryClient.invalidateQueries({ queryKey: ['teachers'] })
+      message.success('新增成功')
       setOpen(false)
+      form.resetFields()
     },
   })
 
-  const columns: ColumnsType<TeacherProfileDto> = [
+  const updateMutation = useMutation({
+    mutationFn: updateTeacherApi,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['teachers'] })
+      message.success('更新成功')
+      setOpen(false)
+      setEditingRecord(null)
+      form.resetFields()
+    },
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteTeacherApi,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['teachers'] })
+      message.success('删除成功')
+    },
+  })
+
+  const columns: ColumnsType<TeacherDto> = [
     { title: '工号', dataIndex: 'emp_no', key: 'emp_no' },
     { title: '姓名', dataIndex: 'realname', key: 'realname' },
     { title: '邮箱', dataIndex: 'email', key: 'email' },
@@ -89,60 +114,107 @@ const TeacherProfilePage: React.FC = () => {
       render: (ids: string[]) => {
         if (!ids?.length) return '-'
         const classMap = new Map(
-          (classesData?.results || []).map((c: { id: string; name: string; grade_display: string }) => [
-            c.id,
-            `${c.grade_display}${c.name}`,
-          ]),
+          (classesData?.results || []).map(
+            (c: { id: string; name: string; grade_display: string }) => [
+              c.id,
+              `${c.grade_display}${c.name}`,
+            ],
+          ),
         )
         return ids.map(id => <Tag key={id}>{classMap.get(id) || id}</Tag>)
       },
+    },
+    {
+      title: '操作',
+      key: 'actions',
+      render: (_, record) => (
+        <Space>
+          <Button
+            type="link"
+            onClick={() => {
+              setEditingRecord(record)
+              form.setFieldsValue(record)
+              setOpen(true)
+            }}
+          >
+            编辑
+          </Button>
+          <Button
+            type="link"
+            danger
+            onClick={() => {
+              Modal.confirm({
+                title: '确认删除',
+                content: `确定要删除教师"${record.realname}"吗？`,
+                onOk: () => deleteMutation.mutate(record.id),
+              })
+            }}
+          >
+            删除
+          </Button>
+        </Space>
+      ),
     },
   ]
 
   const handleSubmit = () => {
     form.validateFields().then(values => {
-      saveMutation.mutate(values as any)
+      if (editingRecord) {
+        updateMutation.mutate({ ...values, id: editingRecord.id } as any)
+      } else {
+        createMutation.mutate(values as any)
+      }
     })
   }
-
-  const profile = data
 
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-4">
-        <Title level={3}>教师简介</Title>
+        <Title level={3}>教师管理</Title>
         <Space>
-          <Button icon={<ReloadOutlined />} onClick={() => refetch()}>
+          <Button
+            icon={<ReloadOutlined />}
+            onClick={() => queryClient.invalidateQueries({ queryKey: ['teachers'] })}
+          >
             刷新
           </Button>
           <Button
             type="primary"
             icon={<PlusOutlined />}
             onClick={() => {
-              if (profile) form.setFieldsValue(profile)
-              else form.resetFields()
+              setEditingRecord(null)
+              form.resetFields()
               setOpen(true)
             }}
           >
-            {profile ? '编辑简介' : '完善简介'}
+            新增教师
           </Button>
         </Space>
       </div>
 
       <Table
         columns={columns}
-        dataSource={profile ? [profile] : []}
+        dataSource={data?.results || []}
         rowKey="id"
         loading={isLoading}
-        pagination={false}
+        pagination={{
+          current: data?.page || pagination.current,
+          pageSize: data?.pageSize || pagination.pageSize,
+          total: data?.total || 0,
+          onChange: (page, pageSize) => setPagination({ current: page, pageSize }),
+        }}
       />
 
       <Modal
-        title={profile ? '编辑教师简介' : '完善教师简介'}
+        title={editingRecord ? '编辑教师' : '新增教师'}
         open={open}
         onOk={handleSubmit}
-        onCancel={() => setOpen(false)}
-        confirmLoading={saveMutation.isPending}
+        onCancel={() => {
+          setOpen(false)
+          setEditingRecord(null)
+          form.resetFields()
+        }}
+        confirmLoading={createMutation.isPending || updateMutation.isPending}
         width={640}
       >
         <Form form={form} layout="vertical">

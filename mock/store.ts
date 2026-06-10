@@ -2,8 +2,8 @@ import Mock from 'mockjs'
 import type {
   UserDto,
   LoginResponse,
-  TeacherProfileDto,
-  StudentProfileDto,
+  TeacherDto,
+  StudentDto,
   ResearchGroupDto,
   ClassesDto,
 } from '../src/apis/types'
@@ -252,7 +252,7 @@ export const deleteClass = (id: string) => {
 
 // ============ 教师简介存储 ============
 
-type TeacherRecord = TeacherProfileDto
+type TeacherRecord = TeacherDto
 
 let teacherStore: TeacherRecord[] = [
   {
@@ -290,6 +290,7 @@ let teacherStore: TeacherRecord[] = [
 export const getTeacherByUser = (userId: string) =>
   teacherStore.find(t => t.user === userId) ?? null
 export const getAllTeachers = () => teacherStore
+export const getTeacherById = (id: string) => teacherStore.find(t => t.id === id) ?? null
 
 export const createOrUpdateTeacher = (payload: Partial<TeacherRecord>, userId: string) => {
   const existing = teacherStore.findIndex(t => t.user === userId)
@@ -316,9 +317,40 @@ export const createOrUpdateTeacher = (payload: Partial<TeacherRecord>, userId: s
   return t
 }
 
+export const createTeacher = (payload: Partial<TeacherRecord>) => {
+  const t: TeacherRecord = {
+    id: payload.id || createId('tp'),
+    user: payload.user || '',
+    user_name: payload.user_name || '',
+    emp_no: payload.emp_no || '',
+    realname: payload.realname || '',
+    phone: payload.phone || '',
+    email: payload.email || '',
+    address: payload.address || '',
+    age: payload.age ?? null,
+    gender: payload.gender || '',
+    research_groups: payload.research_groups || [],
+    research_group_names: payload.research_group_names || [],
+    class_ids: payload.class_ids || [],
+  }
+  teacherStore = [t, ...teacherStore]
+  return t
+}
+
+export const updateTeacher = (id: string, payload: Partial<TeacherRecord>) => {
+  const index = teacherStore.findIndex(t => t.id === id)
+  if (index === -1) return null
+  teacherStore[index] = { ...teacherStore[index], ...payload, id }
+  return teacherStore[index]
+}
+
+export const deleteTeacher = (id: string) => {
+  teacherStore = teacherStore.filter(t => t.id !== id)
+}
+
 // ============ 学生简介存储 ============
 
-type StudentRecord = StudentProfileDto
+type StudentRecord = StudentDto
 
 let studentStore: StudentRecord[] = [
   {
@@ -377,6 +409,44 @@ export const createOrUpdateStudent = (payload: Partial<StudentRecord>, userId: s
   }
   studentStore = [s, ...studentStore]
   return s
+}
+
+export const getStudentById = (id: string) => studentStore.find(s => s.id === id) ?? null
+
+export const createStudent = (payload: Partial<StudentRecord>) => {
+  const cls = payload.class_id ? classesStore.find(c => c.id === payload.class_id) : null
+  const s: StudentRecord = {
+    id: payload.id || createId('sp'),
+    user: payload.user || '',
+    user_name: payload.user_name || '',
+    stu_no: payload.stu_no || '',
+    realname: payload.realname || '',
+    phone: payload.phone || '',
+    email: payload.email || '',
+    address: payload.address || '',
+    age: payload.age ?? null,
+    gender: payload.gender || '',
+    class_id: payload.class_id || null,
+    class_name: cls ? `${cls.grade_display}${cls.name}` : payload.class_name || '',
+  }
+  studentStore = [s, ...studentStore]
+  return s
+}
+
+export const updateStudent = (id: string, payload: Partial<StudentRecord>) => {
+  const index = studentStore.findIndex(s => s.id === id)
+  if (index === -1) return null
+  const merged = { ...studentStore[index], ...payload }
+  if (payload.class_id) {
+    const cls = classesStore.find(c => c.id === payload.class_id)
+    if (cls) merged.class_name = `${cls.grade_display}${cls.name}`
+  }
+  studentStore[index] = { ...merged, id }
+  return studentStore[index]
+}
+
+export const deleteStudent = (id: string) => {
+  studentStore = studentStore.filter(s => s.id !== id)
 }
 
 // ============ 教研组存储 ============
@@ -476,7 +546,11 @@ export const getSemesters = () => semesterStore
 export const getSemesterById = (id: string) => semesterStore.find(s => s.id === id) ?? null
 
 export const createSemester = (payload: { name: string; display_name: string }) => {
-  const s: SemesterRecord = { id: createId('sem'), name: payload.name, display_name: payload.display_name }
+  const s: SemesterRecord = {
+    id: createId('sem'),
+    name: payload.name,
+    display_name: payload.display_name,
+  }
   semesterStore = [s, ...semesterStore]
   return s
 }
@@ -620,7 +694,8 @@ export const updateExam = (
   if (index === -1) return null
   const current = examStore[index]
   const merged = { ...current, ...payload }
-  if (payload.exam_type) merged.exam_type_display = examTypeDisplay[payload.exam_type] || payload.exam_type
+  if (payload.exam_type)
+    merged.exam_type_display = examTypeDisplay[payload.exam_type] || payload.exam_type
   if (payload.grade) merged.grade_display = gradeDisplayMap[payload.grade] || payload.grade
   if (payload.semester) {
     const sem = semesterStore.find(s => s.id === payload.semester)
@@ -634,6 +709,142 @@ export const updateExam = (
 
 export const deleteExam = (id: string) => {
   examStore = examStore.filter(e => e.id !== id)
+}
+
+// ============ 成绩存储 ============
+
+type ScoreRecord = {
+  id: string
+  student: string
+  student_name: string
+  student_no: string
+  exam: string
+  exam_name: string
+  subject: string
+  subject_name: string
+  score: number
+}
+
+let scoreStore: ScoreRecord[] = [
+  {
+    id: 'sc1',
+    student: 'sp1',
+    student_name: '李同学',
+    student_no: 'S20240001',
+    exam: 'e1',
+    exam_name: '2025-2026学年第二学期高一月考',
+    subject: 'sub2',
+    subject_name: '数学',
+    score: 98.5,
+  },
+  {
+    id: 'sc2',
+    student: 'sp1',
+    student_name: '李同学',
+    student_no: 'S20240001',
+    exam: 'e1',
+    exam_name: '2025-2026学年第二学期高一月考',
+    subject: 'sub1',
+    subject_name: '语文',
+    score: 92,
+  },
+  {
+    id: 'sc3',
+    student: 'sp2',
+    student_name: '王同学',
+    student_no: 'S20240002',
+    exam: 'e1',
+    exam_name: '2025-2026学年第二学期高一月考',
+    subject: 'sub2',
+    subject_name: '数学',
+    score: 87,
+  },
+  {
+    id: 'sc4',
+    student: 'sp1',
+    student_name: '李同学',
+    student_no: 'S20240001',
+    exam: 'e2',
+    exam_name: '2025-2026学年第二学期高一期中考试',
+    subject: 'sub2',
+    subject_name: '数学',
+    score: 95,
+  },
+  {
+    id: 'sc5',
+    student: 'sp2',
+    student_name: '王同学',
+    student_no: 'S20240002',
+    exam: 'e3',
+    exam_name: '2025-2026学年第二学期高二期中考试',
+    subject: 'sub3',
+    subject_name: '英语',
+    score: 88.5,
+  },
+]
+
+export const getScores = (query?: { exam?: string; subject?: string; student?: string }) =>
+  scoreStore.filter(s => {
+    if (query?.exam && s.exam !== query.exam) return false
+    if (query?.subject && s.subject !== query.subject) return false
+    if (query?.student && !s.student_name.includes(query.student)) return false
+    return true
+  })
+
+export const getScoreById = (id: string) => scoreStore.find(s => s.id === id) ?? null
+
+export const createScore = (payload: {
+  student: string
+  exam: string
+  subject: string
+  score: number
+}) => {
+  const stu = studentStore.find(s => s.id === payload.student)
+  const ex = examStore.find(e => e.id === payload.exam)
+  const sub = subjectStore.find(s => s.id === payload.subject)
+  const r: ScoreRecord = {
+    id: createId('sc'),
+    student: payload.student,
+    student_name: stu?.realname || '',
+    student_no: stu?.stu_no || '',
+    exam: payload.exam,
+    exam_name: ex?.name || '',
+    subject: payload.subject,
+    subject_name: sub?.name || '',
+    score: payload.score,
+  }
+  scoreStore = [r, ...scoreStore]
+  return r
+}
+
+export const updateScore = (
+  id: string,
+  payload: { student?: string; exam?: string; subject?: string; score?: number },
+) => {
+  const index = scoreStore.findIndex(s => s.id === id)
+  if (index === -1) return null
+  const merged = { ...scoreStore[index], ...payload }
+  if (payload.student) {
+    const stu = studentStore.find(s => s.id === payload.student)
+    if (stu) {
+      merged.student_name = stu.realname
+      merged.student_no = stu.stu_no
+    }
+  }
+  if (payload.exam) {
+    const ex = examStore.find(e => e.id === payload.exam)
+    if (ex) merged.exam_name = ex.name
+  }
+  if (payload.subject) {
+    const sub = subjectStore.find(s => s.id === payload.subject)
+    if (sub) merged.subject_name = sub.name
+  }
+  scoreStore[index] = { ...merged, id }
+  return scoreStore[index]
+}
+
+export const deleteScore = (id: string) => {
+  scoreStore = scoreStore.filter(s => s.id !== id)
 }
 
 // ============ 仪表盘统计 ============

@@ -1,14 +1,22 @@
 import { httpClient } from '@/utils'
-import type { TeacherProfileDto } from '../types'
+import type { TeacherDto } from '../types'
 
-export function getTeacherProfileApi() {
-  return httpClient.get<TeacherProfileDto>('/api/profile/teacher')
+export function getAllTeachersApi(params?: { page?: number; pageSize?: number }) {
+  return httpClient.getPaginated<TeacherDto>('/api/teachers', params)
 }
 
-export function saveTeacherProfileApi(data: Partial<TeacherProfileDto>) {
-  return httpClient.post<TeacherProfileDto>('/api/profile/teacher', data)
+export function getTeacherByIdApi(id: string) {
+  return httpClient.get<TeacherDto>(`/api/teachers/${id}`)
 }
 
-export function updateTeacherProfileApi(data: Partial<TeacherProfileDto>) {
-  return httpClient.put<TeacherProfileDto>('/api/profile/teacher', data)
+export function saveTeacherApi(data: Partial<TeacherDto>) {
+  return httpClient.post<TeacherDto>('/api/teachers', data)
+}
+
+export function updateTeacherApi(data: Partial<TeacherDto>) {
+  return httpClient.put<TeacherDto>(`/api/teachers/${data.id}`, data)
+}
+
+export function deleteTeacherApi(id: string) {
+  return httpClient.delete<null>(`/api/teachers/${id}`)
 }

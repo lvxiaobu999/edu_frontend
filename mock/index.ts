@@ -10,6 +10,7 @@ import classes from './classes'
 import semester from './semester'
 import subject from './subject'
 import exam from './exam'
+import score from './score'
 import choices from './choices'
 
 export default [
@@ -23,5 +24,6 @@ export default [
   ...semester,
   ...subject,
   ...exam,
+  ...score,
   ...choices,
 ] as MockMethod[]

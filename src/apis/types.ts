@@ -70,7 +70,7 @@ export interface ClassesDto {
 
 // ============ 教师简介（匹配后端 TeacherProfile model） ============
 
-export interface TeacherProfileDto {
+export interface TeacherDto {
   id: string
   user: string
   user_name: string
@@ -88,7 +88,7 @@ export interface TeacherProfileDto {
 
 // ============ 学生简介（匹配后端 StudentProfile model） ============
 
-export interface StudentProfileDto {
+export interface StudentDto {
   id: string
   user: string
   user_name: string
@@ -137,6 +137,20 @@ export interface ExamDto {
   grade_display: string
   semester: string
   semester_display: string
+}
+
+// ============ 成绩（匹配后端 Score model） ============
+
+export interface ScoreDto {
+  id: string
+  student: string
+  student_name: string
+  student_no: string
+  exam: string
+  exam_name: string
+  subject: string
+  subject_name: string
+  score: number
 }
 
 // ============ 仪表盘统计 ============

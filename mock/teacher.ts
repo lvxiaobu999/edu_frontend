@@ -1,37 +1,54 @@
 import type { MockMethod } from 'vite-plugin-mock'
-import { createOrUpdateTeacher, getTeacherByUser } from './store'
-import { createErrorResponse, createResponse } from './util'
+import {
+  getAllTeachers,
+  getTeacherById,
+  createTeacher,
+  updateTeacher,
+  deleteTeacher,
+} from './store'
+import { createErrorResponse, createPaginatedData, createResponse } from './util'
 
 export default [
   {
-    url: '/api/profile/teacher/',
+    url: '/api/teachers/',
     method: 'get',
     timeout: 300,
     response: (request: any) => {
-      // 从 token 中提取 username（简化版：取 header 里的 Authorization）
-      const userId = '2' // 默认老师
-      const teacher = getTeacherByUser(userId)
-      return teacher ? createResponse(teacher, request) : createErrorResponse('未完善简介', 404)
+      const list = getAllTeachers()
+      return createResponse(createPaginatedData(list, request), request)
     },
   },
   {
-    url: '/api/profile/teacher/',
-    method: 'post',
+    url: '/api/teachers/:id/',
+    method: 'get',
     timeout: 300,
     response: (request: any) => {
-      const userId = '2'
-      const teacher = createOrUpdateTeacher(request.body, userId)
-      return createResponse(teacher, request)
+      const teacher = getTeacherById(request.params.id)
+      return teacher ? createResponse(teacher, request) : createErrorResponse('教师不存在', 404)
     },
   },
   {
-    url: '/api/profile/teacher/',
+    url: '/api/teachers/',
+    method: 'post',
+    timeout: 300,
+    response: (request: any) => createResponse(createTeacher(request.body), request),
+  },
+  {
+    url: '/api/teachers/:id/',
     method: 'put',
     timeout: 300,
     response: (request: any) => {
-      const userId = '2'
-      const teacher = createOrUpdateTeacher(request.body, userId)
-      return createResponse(teacher, request)
+      const updated = updateTeacher(request.params.id, request.body)
+      return updated ? createResponse(updated, request) : createErrorResponse('教师不存在', 404)
+    },
+  },
+  {
+    url: '/api/teachers/:id/',
+    method: 'delete',
+    timeout: 300,
+    response: (request: any) => {
+      deleteTeacher(request.params.id)
+      return createResponse(null, request)
     },
   },
 ] as MockMethod[]

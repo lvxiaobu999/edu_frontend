@@ -14,40 +14,74 @@ import {
 import { PlusOutlined, ReloadOutlined } from '@ant-design/icons'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { ColumnsType } from 'antd/es/table'
-import { getStudentProfileApi, saveStudentProfileApi } from '@/apis/student'
+import {
+  getAllStudentsApi,
+  saveStudentApi,
+  updateStudentApi,
+  deleteStudentApi,
+} from '@/apis/student'
 import { getClassesApi } from '@/apis/classes'
-import type { StudentProfileDto } from '@/apis/types'
+import type { StudentDto } from '@/apis/types'
 import { useChoicesStore } from '@/store'
 
 const { Title } = Typography
 
 const StudentProfilePage: React.FC = () => {
   const [open, setOpen] = useState(false)
+  const [editingRecord, setEditingRecord] = useState<StudentDto | null>(null)
   const [form] = Form.useForm()
   const queryClient = useQueryClient()
   const { message } = App.useApp()
   const { getLabel, getOptions } = useChoicesStore()
 
-  const { data, isLoading, refetch } = useQuery({
-    queryKey: ['student-profile'],
-    queryFn: getStudentProfileApi,
+  const [pagination, setPagination] = useState({ current: 1, pageSize: 10 })
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['students', pagination],
+    queryFn: () =>
+      getAllStudentsApi({
+        page: pagination.current,
+        pageSize: pagination.pageSize,
+      }),
   })
+
+  console.log('students data', data)
 
   const { data: classesData } = useQuery({
     queryKey: ['classes'],
     queryFn: () => getClassesApi(),
   })
 
-  const saveMutation = useMutation({
-    mutationFn: saveStudentProfileApi,
+  const createMutation = useMutation({
+    mutationFn: saveStudentApi,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['student-profile'] })
-      message.success('保存成功')
+      queryClient.invalidateQueries({ queryKey: ['students'] })
+      message.success('新增成功')
       setOpen(false)
+      form.resetFields()
     },
   })
 
-  const columns: ColumnsType<StudentProfileDto> = [
+  const updateMutation = useMutation({
+    mutationFn: updateStudentApi,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['students'] })
+      message.success('更新成功')
+      setOpen(false)
+      setEditingRecord(null)
+      form.resetFields()
+    },
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteStudentApi,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['students'] })
+      message.success('删除成功')
+    },
+  })
+
+  const columns: ColumnsType<StudentDto> = [
     { title: '学号', dataIndex: 'stu_no', key: 'stu_no' },
     { title: '姓名', dataIndex: 'realname', key: 'realname' },
     { title: '邮箱', dataIndex: 'email', key: 'email' },
@@ -61,52 +95,97 @@ const StudentProfilePage: React.FC = () => {
     { title: '年龄', dataIndex: 'age', key: 'age' },
     { title: '班级', dataIndex: 'class_name', key: 'class_name', render: (v: string) => v || '-' },
     { title: '地址', dataIndex: 'address', key: 'address', ellipsis: true },
+    {
+      title: '操作',
+      key: 'actions',
+      render: (_, record) => (
+        <Space>
+          <Button
+            type="link"
+            onClick={() => {
+              setEditingRecord(record)
+              form.setFieldsValue(record)
+              setOpen(true)
+            }}
+          >
+            编辑
+          </Button>
+          <Button
+            type="link"
+            danger
+            onClick={() => {
+              Modal.confirm({
+                title: '确认删除',
+                content: `确定要删除学生"${record.realname}"吗？`,
+                onOk: () => deleteMutation.mutate(record.id),
+              })
+            }}
+          >
+            删除
+          </Button>
+        </Space>
+      ),
+    },
   ]
 
   const handleSubmit = () => {
     form.validateFields().then(values => {
-      saveMutation.mutate(values as any)
+      if (editingRecord) {
+        updateMutation.mutate({ ...values, id: editingRecord.id } as any)
+      } else {
+        createMutation.mutate(values as any)
+      }
     })
   }
-
-  const profile = data
 
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-4">
-        <Title level={3}>学生简介</Title>
+        <Title level={3}>学生管理</Title>
         <Space>
-          <Button icon={<ReloadOutlined />} onClick={() => refetch()}>
+          <Button
+            icon={<ReloadOutlined />}
+            onClick={() => queryClient.invalidateQueries({ queryKey: ['students'] })}
+          >
             刷新
           </Button>
           <Button
             type="primary"
             icon={<PlusOutlined />}
             onClick={() => {
-              if (profile) form.setFieldsValue(profile)
-              else form.resetFields()
+              setEditingRecord(null)
+              form.resetFields()
               setOpen(true)
             }}
           >
-            {profile ? '编辑简介' : '完善简介'}
+            新增学生
           </Button>
         </Space>
       </div>
 
       <Table
         columns={columns}
-        dataSource={profile ? [profile] : []}
+        dataSource={data?.results || []}
         rowKey="id"
         loading={isLoading}
-        pagination={false}
+        pagination={{
+          current: data?.page || pagination.current,
+          pageSize: data?.pageSize || pagination.pageSize,
+          total: data?.total || 0,
+          onChange: (page, pageSize) => setPagination({ current: page, pageSize }),
+        }}
       />
 
       <Modal
-        title={profile ? '编辑学生简介' : '完善学生简介'}
+        title={editingRecord ? '编辑学生' : '新增学生'}
         open={open}
         onOk={handleSubmit}
-        onCancel={() => setOpen(false)}
-        confirmLoading={saveMutation.isPending}
+        onCancel={() => {
+          setOpen(false)
+          setEditingRecord(null)
+          form.resetFields()
+        }}
+        confirmLoading={createMutation.isPending || updateMutation.isPending}
         width={640}
       >
         <Form form={form} layout="vertical">
