@@ -68,6 +68,18 @@ export interface ClassesDto {
   headmaster_name: string
 }
 
+// // ============ 班级（匹配后端 Classes model） ============
+export interface GradeClassItemDto {
+  grade_id: string
+  grade_name: string
+  classes: Array<{
+    class_id: string
+    class_name: string
+  }>
+}
+
+export type GradeClassDto = Array<GradeClassItemDto>
+
 // ============ 教师简介（匹配后端 TeacherProfile model） ============
 
 export interface TeacherDto {
@@ -101,6 +113,8 @@ export interface StudentDto {
   gender: Gender | ''
   class_id: string | null
   class_name: string
+  grade: Grade
+  grade_display: string
 }
 
 // ============ 科目（匹配后端 SubjectDict model） ============

@@ -11,7 +11,7 @@ import {
   Typography,
   App,
 } from 'antd'
-import { PlusOutlined, ReloadOutlined } from '@ant-design/icons'
+import { PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { ColumnsType } from 'antd/es/table'
 import {
@@ -20,7 +20,7 @@ import {
   updateStudentApi,
   deleteStudentApi,
 } from '@/apis/student'
-import { getClassesApi } from '@/apis/classes'
+import { getClassesApi, getGradeClassApi } from '@/apis/classes'
 import type { StudentDto } from '@/apis/types'
 import { useChoicesStore } from '@/store'
 
@@ -35,13 +35,31 @@ const StudentProfilePage: React.FC = () => {
   const { getLabel, getOptions } = useChoicesStore()
 
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10 })
+  const [searchInput, setSearchInput] = useState({
+    stu_no: '',
+    realname: '',
+    grade: '',
+    class_id: '',
+  })
+  const [filters, setFilters] = useState({
+    stu_no: '',
+    realname: '',
+    grade: '',
+    class_id: '',
+  })
+
+  const gradeOptions = getOptions('grades')
 
   const { data, isLoading } = useQuery({
-    queryKey: ['students', pagination],
+    queryKey: ['students', pagination, filters],
     queryFn: () =>
       getAllStudentsApi({
         page: pagination.current,
         pageSize: pagination.pageSize,
+        ...(filters.stu_no && { stu_no: filters.stu_no }),
+        ...(filters.realname && { realname: filters.realname }),
+        ...(filters.grade && { grade: filters.grade }),
+        ...(filters.class_id && { class_id: filters.class_id }),
       }),
   })
 
@@ -51,6 +69,23 @@ const StudentProfilePage: React.FC = () => {
     queryKey: ['classes'],
     queryFn: () => getClassesApi(),
   })
+
+  const { data: gradeClassData } = useQuery({
+    queryKey: ['grade-classes'],
+    queryFn: () => getGradeClassApi(),
+  })
+
+  console.log('--gradeClassData--', gradeClassData)
+
+  // 根据搜索框中选中的年级，联动过滤班级选项
+  const searchClassOptions = (gradeClassData || [])
+    .filter(g => !searchInput.grade || g.grade_id === searchInput.grade)
+    .flatMap(g =>
+      g.classes.map(c => ({
+        value: c.class_id,
+        label: `${g.grade_name}${c.class_name}`,
+      })),
+    )
 
   const createMutation = useMutation({
     mutationFn: saveStudentApi,
@@ -81,6 +116,21 @@ const StudentProfilePage: React.FC = () => {
     },
   })
 
+  const handleSearch = () => {
+    setFilters({ ...searchInput })
+    setPagination(prev => ({ ...prev, current: 1 }))
+  }
+
+  const handleReset = () => {
+    setSearchInput({ stu_no: '', realname: '', grade: '', class_id: '' })
+    setFilters({ stu_no: '', realname: '', grade: '', class_id: '' })
+    setPagination({ current: 1, pageSize: 10 })
+  }
+
+  const handleSearchInputChange = (key: keyof typeof searchInput, value: string) => {
+    setSearchInput(prev => ({ ...prev, [key]: value }))
+  }
+
   const columns: ColumnsType<StudentDto> = [
     { title: '学号', dataIndex: 'stu_no', key: 'stu_no' },
     { title: '姓名', dataIndex: 'realname', key: 'realname' },
@@ -93,7 +143,12 @@ const StudentProfilePage: React.FC = () => {
       render: (v: string) => getLabel('genders', v) || '-',
     },
     { title: '年龄', dataIndex: 'age', key: 'age' },
-    { title: '班级', dataIndex: 'class_name', key: 'class_name', render: (v: string) => v || '-' },
+    {
+      title: '班级',
+      dataIndex: 'class_name',
+      key: 'class_name',
+      render: (v: string, record: StudentDto) => record.grade_display + v || '-',
+    },
     { title: '地址', dataIndex: 'address', key: 'address', ellipsis: true },
     {
       title: '操作',
@@ -143,10 +198,7 @@ const StudentProfilePage: React.FC = () => {
       <div className="flex justify-between items-center mb-4">
         <Title level={3}>学生管理</Title>
         <Space>
-          <Button
-            icon={<ReloadOutlined />}
-            onClick={() => queryClient.invalidateQueries({ queryKey: ['students'] })}
-          >
+          <Button icon={<ReloadOutlined />} onClick={handleReset}>
             刷新
           </Button>
           <Button
@@ -161,6 +213,47 @@ const StudentProfilePage: React.FC = () => {
             新增学生
           </Button>
         </Space>
+      </div>
+
+      <div className="flex items-center gap-3 mb-4">
+        <Input
+          value={searchInput.stu_no}
+          onChange={e => handleSearchInputChange('stu_no', e.target.value)}
+          allowClear
+          placeholder="学号"
+          style={{ width: 140 }}
+        />
+        <Input
+          value={searchInput.realname}
+          onChange={e => handleSearchInputChange('realname', e.target.value)}
+          allowClear
+          placeholder="姓名"
+          style={{ width: 140 }}
+        />
+        <Select
+          value={searchInput.grade || undefined}
+          onChange={v => {
+            handleSearchInputChange('grade', v || '')
+            handleSearchInputChange('class_id', '')
+          }}
+          allowClear
+          placeholder="选择年级"
+          style={{ width: 140 }}
+          options={gradeOptions}
+        />
+        <Select
+          value={searchInput.class_id || undefined}
+          onChange={v => handleSearchInputChange('class_id', v || '')}
+          allowClear
+          placeholder="选择班级"
+          style={{ width: 180 }}
+          options={searchClassOptions}
+          showSearch
+          optionFilterProp="label"
+        />
+        <Button type="primary" icon={<SearchOutlined />} onClick={handleSearch}>
+          查询
+        </Button>
       </div>
 
       <Table

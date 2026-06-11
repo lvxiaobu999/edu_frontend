@@ -58,8 +58,13 @@ const createAxiosInstance = (baseURL?: string): AxiosInstance => {
 
       // 业务逻辑成功：直接解包 ApiResponse，返回内层 data
       if (response.data?.code === 0) {
+        const data = response.data.data
+        // 数组不能直接展开到对象里，否则会变成 {0: ..., 1: ...} 而丢失数组结构
+        if (Array.isArray(data)) {
+          return data
+        }
         return {
-          ...response.data.data,
+          ...data,
           duration: `API ${response.config.url} 耗时: ${duration}ms`,
         }
       }

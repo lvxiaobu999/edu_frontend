@@ -1,5 +1,5 @@
 import { httpClient } from '@/utils'
-import type { ClassesDto } from '../types'
+import type { ClassesDto, GradeClassDto } from '../types'
 
 export function getClassesApi(params?: {
   page?: number
@@ -28,4 +28,11 @@ export function updateClassApi(
 
 export function deleteClassApi(id: string) {
   return httpClient.delete<null>(`/api/classes/${id}`)
+}
+
+export function getGradeClassApi() {
+  return httpClient.get<GradeClassDto>(`/api/classes/grade-classes`).then(res => {
+    console.log('getGradeClassApi res', res)
+    return res
+  })
 }
