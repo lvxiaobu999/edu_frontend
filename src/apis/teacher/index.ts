@@ -1,7 +1,14 @@
 import { httpClient } from '@/utils'
 import type { TeacherDto } from '../types'
 
-export function getAllTeachersApi(params?: { page?: number; pageSize?: number }) {
+export function getAllTeachersApi(params?: {
+  page?: number
+  pageSize?: number
+  emp_no?: string
+  realname?: string
+  grade?: string
+  class_id?: string
+}) {
   return httpClient.getPaginated<TeacherDto>('/api/teachers', params)
 }
 

@@ -12,7 +12,7 @@ import {
   Typography,
   App,
 } from 'antd'
-import { PlusOutlined, ReloadOutlined } from '@ant-design/icons'
+import { PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { ColumnsType } from 'antd/es/table'
 import {
@@ -37,13 +37,23 @@ const TeacherProfilePage: React.FC = () => {
   const { getLabel, getOptions } = useChoicesStore()
 
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10 })
+  const [searchInput, setSearchInput] = useState({
+    emp_no: '',
+    realname: '',
+  })
+  const [filters, setFilters] = useState({
+    emp_no: '',
+    realname: '',
+  })
 
   const { data, isLoading } = useQuery({
-    queryKey: ['teachers', pagination],
+    queryKey: ['teachers', pagination, filters],
     queryFn: () =>
       getAllTeachersApi({
         page: pagination.current,
         pageSize: pagination.pageSize,
+        ...(filters.emp_no && { emp_no: filters.emp_no }),
+        ...(filters.realname && { realname: filters.realname }),
       }),
   })
 
@@ -87,6 +97,21 @@ const TeacherProfilePage: React.FC = () => {
       message.success('删除成功')
     },
   })
+
+  const handleSearch = () => {
+    setFilters({ ...searchInput })
+    setPagination(prev => ({ ...prev, current: 1 }))
+  }
+
+  const handleReset = () => {
+    setSearchInput({ emp_no: '', realname: '' })
+    setFilters({ emp_no: '', realname: '' })
+    setPagination({ current: 1, pageSize: 10 })
+  }
+
+  const handleSearchInputChange = (key: keyof typeof searchInput, value: string) => {
+    setSearchInput(prev => ({ ...prev, [key]: value }))
+  }
 
   const columns: ColumnsType<TeacherDto> = [
     { title: '工号', dataIndex: 'emp_no', key: 'emp_no' },
@@ -172,10 +197,7 @@ const TeacherProfilePage: React.FC = () => {
       <div className="flex justify-between items-center mb-4">
         <Title level={3}>教师管理</Title>
         <Space>
-          <Button
-            icon={<ReloadOutlined />}
-            onClick={() => queryClient.invalidateQueries({ queryKey: ['teachers'] })}
-          >
+          <Button icon={<ReloadOutlined />} onClick={handleReset}>
             刷新
           </Button>
           <Button
@@ -190,6 +212,26 @@ const TeacherProfilePage: React.FC = () => {
             新增教师
           </Button>
         </Space>
+      </div>
+
+      <div className="flex items-center gap-3 mb-4">
+        <Input
+          value={searchInput.emp_no}
+          onChange={e => handleSearchInputChange('emp_no', e.target.value)}
+          allowClear
+          placeholder="工号"
+          style={{ width: 140 }}
+        />
+        <Input
+          value={searchInput.realname}
+          onChange={e => handleSearchInputChange('realname', e.target.value)}
+          allowClear
+          placeholder="姓名"
+          style={{ width: 140 }}
+        />
+        <Button type="primary" icon={<SearchOutlined />} onClick={handleSearch}>
+          查询
+        </Button>
       </div>
 
       <Table
