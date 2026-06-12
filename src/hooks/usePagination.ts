@@ -1,22 +1,23 @@
-import type { TablePaginationConfig } from 'antd'
 import { useState } from 'react'
 
-export const usePagination = () => {
+export const usePagination = (defaultPageSize = 10) => {
   const [pagination, setPagination] = useState({
     current: 1,
-    pageSize: 10,
+    pageSize: defaultPageSize,
   })
 
-  const handlePageChange = (page: TablePaginationConfig) => {
-    setPagination(prev => ({
-      ...prev,
-      current: page.current || prev.current,
-      pageSize: page.pageSize || prev.pageSize,
-    }))
+  const handlePageChange = (page: number, pageSize: number) => {
+    setPagination({ current: page, pageSize })
+  }
+
+  const resetPagination = () => {
+    setPagination(prev => ({ current: 1, pageSize: prev.pageSize }))
   }
 
   return {
     pagination,
+    setPagination,
     handlePageChange,
+    resetPagination,
   }
 }

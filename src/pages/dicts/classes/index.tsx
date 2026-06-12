@@ -1,105 +1,29 @@
-import React, { useState } from 'react'
-import { Button, Form, Input, Modal, Select, Space, Typography, App } from 'antd'
+import React from 'react'
+import { Button, Space, Typography } from 'antd'
 import { PlusOutlined, ReloadOutlined } from '@ant-design/icons'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { getClassesApi, createClassApi, updateClassApi, deleteClassApi } from '@/apis/classes'
-import type { ClassesDto } from '@/apis/types'
 import { useChoicesStore } from '@/store'
+import { useClassesList } from './hooks/useClassesList'
+import { useClassesForm } from './hooks/useClassesForm'
 import ClassesSearch from './components/ClassesSearch'
 import ClassesTable from './components/ClassesTable'
+import ClassesForm from './components/ClassesForm'
 
 const { Title } = Typography
 
 const ClassesManagement: React.FC = () => {
-  const [open, setOpen] = useState(false)
-  const [editingRecord, setEditingRecord] = useState<ClassesDto | null>(null)
-  const [form] = Form.useForm()
-  const queryClient = useQueryClient()
-  const { message } = App.useApp()
   const { getOptions } = useChoicesStore()
-
-  const [pagination, setPagination] = useState({ current: 1, pageSize: 10 })
-  const [searchInput, setSearchInput] = useState({ grade: '', name: '', headmaster: '' })
-  const [filters, setFilters] = useState({ grade: '', name: '', headmaster: '' })
-
-  const { data, isLoading } = useQuery({
-    queryKey: ['classes', pagination, filters],
-    queryFn: () =>
-      getClassesApi({
-        page: pagination.current,
-        pageSize: pagination.pageSize,
-        ...(filters.grade && { grade: filters.grade }),
-        ...(filters.name && { name: filters.name }),
-        ...(filters.headmaster && { headmaster: filters.headmaster }),
-      }),
-  })
-
-  const createMutation = useMutation({
-    mutationFn: createClassApi,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['classes'] })
-      message.success('新增成功')
-      setOpen(false)
-      form.resetFields()
-    },
-  })
-
-  const updateMutation = useMutation({
-    mutationFn: (data: { id: string; grade: string; name: string; headmaster?: string }) =>
-      updateClassApi(data.id, { grade: data.grade, name: data.name, headmaster: data.headmaster }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['classes'] })
-      message.success('更新成功')
-      setOpen(false)
-      setEditingRecord(null)
-      form.resetFields()
-    },
-  })
-
-  const deleteMutation = useMutation({
-    mutationFn: deleteClassApi,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['classes'] })
-      message.success('删除成功')
-    },
-  })
-
-  const handleSubmit = () => {
-    form.validateFields().then(values => {
-      if (editingRecord) {
-        updateMutation.mutate({ id: editingRecord.id, ...values })
-      } else {
-        createMutation.mutate(values)
-      }
-    })
-  }
-
-  const handleSearch = () => {
-    setFilters({ ...searchInput })
-    setPagination(prev => ({ ...prev, current: 1 }))
-    queryClient.invalidateQueries({ queryKey: ['classes'] })
-  }
-
-  const handleReset = () => {
-    setSearchInput({ grade: '', name: '', headmaster: '' })
-    setFilters({ grade: '', name: '', headmaster: '' })
-    setPagination({ current: 1, pageSize: 10 })
-    queryClient.invalidateQueries({ queryKey: ['classes'] })
-  }
-
-  const handleSearchInputChange = (key: keyof typeof searchInput, value: string) => {
-    setSearchInput(prev => ({ ...prev, [key]: value }))
-  }
-
-  const handleEdit = (record: ClassesDto) => {
-    setEditingRecord(record)
-    form.setFieldsValue(record)
-    setOpen(true)
-  }
-
-  const handleDelete = (record: ClassesDto) => {
-    deleteMutation.mutate(record.id)
-  }
+  const {
+    data,
+    isLoading,
+    pagination,
+    searchInput,
+    handleSearch,
+    handleReset,
+    handleSearchInputChange,
+    handlePageChange,
+  } = useClassesList()
+  const { open, editingRecord, form, isPending, openForm, closeForm, handleSubmit, handleDelete } =
+    useClassesForm()
 
   return (
     <div className="p-6">
@@ -109,15 +33,7 @@ const ClassesManagement: React.FC = () => {
           <Button icon={<ReloadOutlined />} onClick={handleReset}>
             刷新
           </Button>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => {
-              setEditingRecord(null)
-              form.resetFields()
-              setOpen(true)
-            }}
-          >
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => openForm()}>
             新增班级
           </Button>
         </Space>
@@ -137,36 +53,21 @@ const ClassesManagement: React.FC = () => {
           current: data?.page || pagination.current,
           pageSize: data?.pageSize || pagination.pageSize,
           total: data?.total || 0,
-          onChange: (page, pageSize) => setPagination({ current: page, pageSize }),
+          onChange: handlePageChange,
         }}
-        onEdit={handleEdit}
+        onEdit={openForm}
         onDelete={handleDelete}
       />
 
-      <Modal
-        title={editingRecord ? '编辑班级' : '新增班级'}
+      <ClassesForm
         open={open}
+        isEdit={!!editingRecord}
+        form={form}
+        confirmLoading={isPending}
         onOk={handleSubmit}
-        onCancel={() => {
-          setOpen(false)
-          setEditingRecord(null)
-          form.resetFields()
-        }}
-        confirmLoading={createMutation.isPending || updateMutation.isPending}
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item name="grade" label="年级" rules={[{ required: true, message: '请选择年级' }]}>
-            <Select options={getOptions('grades')} placeholder="请选择年级" />
-          </Form.Item>
-          <Form.Item
-            name="name"
-            label="班级名称"
-            rules={[{ required: true, message: '请输入班级名称' }]}
-          >
-            <Input placeholder="如：1班" />
-          </Form.Item>
-        </Form>
-      </Modal>
+        onCancel={closeForm}
+        gradeOptions={getOptions('grades')}
+      />
     </div>
   )
 }
